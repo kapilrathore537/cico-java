@@ -1,0 +1,245 @@
+{
+	"info": {
+		"_postman_id": "0bab0df7-c4de-404f-840b-7108b8c00aa6",
+		"name": "AIGL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25374293"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "sendOtpApi",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:7777/auth/sendOtp?phoneNumber=7746802553",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"auth",
+								"sendOtp"
+							],
+							"query": [
+								{
+									"key": "phoneNumber",
+									"value": "7746802553"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyOtpApi",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:7777/auth/verifyOtp?phoneNumber=7746802553&otp=794877",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"auth",
+								"verifyOtp"
+							],
+							"query": [
+								{
+									"key": "phoneNumber",
+									"value": "7746802553"
+								},
+								{
+									"key": "otp",
+									"value": "794877"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "completeRegistration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NzQ2ODAyNTUzIiwiaWF0IjoxNjkyODUxNjM5LCJleHAiOjE2OTI4ODc2Mzl9.5qEeFeScI7FGFWOJ8eXXOA8nVetYbS5cyQf-Ghd8Ucw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstName",
+									"value": "Rahul",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "Hencha",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "rhencha88@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "7746802553",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								},
+								{
+									"key": "dob",
+									"value": "2023-06-30",
+									"type": "text"
+								},
+								{
+									"key": "profilePicture",
+									"type": "file",
+									"src": "/C:/Users/Hp/Downloads/DBMS.png"
+								},
+								{
+									"key": "userBio",
+									"value": "i am rahul",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:7777/auth/completeRegistration",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"auth",
+								"completeRegistration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUser",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NzQ2ODAyNTUzIiwiaWF0IjoxNjkyODUxNjM5LCJleHAiOjE2OTI4ODc2Mzl9.5qEeFeScI7FGFWOJ8eXXOA8nVetYbS5cyQf-Ghd8Ucw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:7777/auth/user",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NzQ2ODAyNTUzIiwiaWF0IjoxNjkyODUxNjM5LCJleHAiOjE2OTI4ODc2Mzl9.5qEeFeScI7FGFWOJ8eXXOA8nVetYbS5cyQf-Ghd8Ucw",
+								"type": "text"
+							},
+							{
+								"key": "au",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstName",
+									"value": "Rahul",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "Hencha",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "rhencha88@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "7746802553",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								},
+								{
+									"key": "dob",
+									"value": "2023-06-28",
+									"type": "text"
+								},
+								{
+									"key": "userBio",
+									"value": "i am rahul",
+									"type": "text"
+								},
+								{
+									"key": "userId",
+									"value": "13",
+									"type": "text"
+								},
+								{
+									"key": "profilePicture",
+									"type": "file",
+									"src": "/C:/Users/Hp/Downloads/IOT.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:7777/auth/user",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

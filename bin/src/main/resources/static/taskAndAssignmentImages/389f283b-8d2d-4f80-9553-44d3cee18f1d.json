@@ -1,0 +1,403 @@
+{
+	"info": {
+		"_postman_id": "389bc31e-c105-4bcb-8fe2-3c686645dab6",
+		"name": "CICO_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25541762"
+	},
+	"item": [
+		{
+			"name": "Student_LoginApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "userId",
+							"value": "Ravi@247",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "fcmId",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "deviceId",
+							"value": "shsfgghrwth",
+							"type": "text"
+						},
+						{
+							"key": "deviceType",
+							"value": "Android",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/Student/studentLoginApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentLoginApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "StudentCheckInCheckOutApi",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiU3R1ZGVudCIsInN1YiI6IlJhdmlAMjQ3IiwiaXNzIjoiQWJoaXNoZWsiLCJleHAiOjE2ODUwNzE2MDgsImRldmljZUlkIjoic2hzZmdnaHJ3dGgiLCJpYXQiOjE2ODUwNjgwMDgsIlN0dWRlbnRJZCI6IjI0NyJ9._-JCnE9f2R6tjeedEc6pfR2zpPjG2nkOWGrrnZzvItg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "lat",
+							"value": "22.689895629882812",
+							"type": "text"
+						},
+						{
+							"key": "long",
+							"value": "75.86438750999997",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "09:30:00",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "checkIn",
+							"type": "text"
+						},
+						{
+							"key": "date",
+							"value": "2023-05-26",
+							"type": "text"
+						},
+						{
+							"key": "studentImage",
+							"type": "file",
+							"src": "/C:/Users/hp/Pictures/30102021212251(1).jpg"
+						},
+						{
+							"key": "attachment",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "workReport",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/Student/studentCheckInCheckOutApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentCheckInCheckOutApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "StudentDashboard",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "GetStudentProfileApi",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "studentDeviceIdApprovalApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/studentDeviceIdApprovalApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentDeviceIdApprovalApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "studentEarlyCheckoutRequestApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/studentEarlyCheckoutRequestApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentEarlyCheckoutRequestApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getStudentCheckInCheckOutHistory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/getStudentCheckInCheckOutHistory",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"getStudentCheckInCheckOutHistory"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "studentMispunchRequestApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/studentMispunchRequestApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentMispunchRequestApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "studentChangePasswordApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/studentChangePasswordApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"studentChangePasswordApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateStudentProfileApi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/Student/updateStudentProfileApi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Student",
+						"updateStudentProfileApi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getLeaveType",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "addStudentLeave",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "getStudentLeaves",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "deleteStudentLeave",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "retractStudentLeave",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "studentAttendanceMonthFilter",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "createAdmin",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "getAdminByIdApi",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "updateAdminApi",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "deleteAdminApi",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Find All",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "AdminuploadImageApi",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "getJob",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "createJob",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Updatejob",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "getAllJobs",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
