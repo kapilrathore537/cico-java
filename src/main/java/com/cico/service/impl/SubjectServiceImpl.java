@@ -99,29 +99,23 @@ public class SubjectServiceImpl implements ISubjectService {
 	@Override
 	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) {
 
-		subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
 		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subjectResponse.getSubjectName().trim());
 
-//		if (Objects.nonNull(sub)
-//				&& Objects.equals(subjectResponse.getTechnologyStack().getId(), sub.getTechnologyStack().getId())) {
-//
-//			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
-//		}
-
-		if (Objects.nonNull(sub)) {
+		if (sub != null && sub.getSubjectId() != subject.getSubjectId()) {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}
 
-		Optional<Subject> findById = subRepo.findById(subjectResponse.getSubjectId());
-		if (findById.isPresent()) {
-			findById.get().setSubjectName(subjectResponse.getSubjectName());
-			findById.get().setTechnologyStack(
+
+		if (subject != null) {
+			subject.setSubjectName(subjectResponse.getSubjectName());
+			subject.setTechnologyStack(
 					technologyStackRepository.findById(subjectResponse.getTechnologyStack().getId()).get());
 		}
 
-		Subject save = subRepo.save(findById.get());
+		Subject save = subRepo.save(subject);
 
 		SubjectResponse response = new SubjectResponse();
 		response.setSubjectName(save.getSubjectName());
