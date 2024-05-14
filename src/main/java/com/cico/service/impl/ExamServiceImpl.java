@@ -417,15 +417,21 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public ResponseEntity<?> updateSubjectExam(AddExamRequest request) {
+	
+		
+		
 		SubjectExam exam = checkSubjectExamIsPresent(request.getExamId());
-		Map<String, Object> response = new HashMap<>();
 
+		Optional<SubjectExam> isExamExist = subjectExamRepo.findByExamName(request.getExamName().trim());
+		if ( !exam.getExamName().trim().equals(isExamExist.get().getExamName()) && isExamExist.isPresent())
+			throw new ResourceAlreadyExistException(AppConstants.EXAM_ALREADY_PRESENT_WITH_THIS_NAME);
+	
+		Map<String, Object> response = new HashMap<>();
 		if (exam.getExamType().equals(ExamType.SCHEDULEEXAM)) {
 			if (request.getScheduleTestDate() != null)
 				exam.setScheduleTestDate(request.getScheduleTestDate());
 			if (request.getExamStartTime() != null)
 				exam.setExamStartTime(request.getExamStartTime());
-
 		}
 
 		if (request.getPassingMarks() != null)

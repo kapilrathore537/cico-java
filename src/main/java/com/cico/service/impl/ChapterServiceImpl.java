@@ -88,7 +88,13 @@ public class ChapterServiceImpl implements IChapterService {
 		if (chapter.getChapterName().equals(chapterName.trim())) {
 			throw new ResourceAlreadyExistException("Chapter already present with name..");
 		}
-
+		
+		Chapter ch = chapterRepo.findByChapterNameAndIsDeleted(chapterName.trim(), false);
+		if(ch!=null) {
+			throw new ResourceAlreadyExistException("Chapter already present with name..");
+		}
+		
+		
 		chapter.setChapterName(chapterName.trim());
 		chapterRepo.save(chapter);
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);

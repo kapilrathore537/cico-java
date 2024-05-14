@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Course;
 import com.cico.model.Student;
@@ -59,6 +60,12 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ResponseEntity<?> createCourse(CourseRequest request) {
+
+		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(request.getCourseName().trim());
+		if (isPresent != null) {
+			throw new ResourceAlreadyExistException("Course already exist with this name.");
+		}
+
 		Map<String, Object> response = new HashMap<>();
 		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(),
 				request.getSortDescription(), null, request.getIsStarterCourse());
@@ -219,8 +226,20 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ApiResponse updateCourse(CourseRequest course) {
-
+		
 		Course course1 = courseRepository.findById(course.getCourseId()).get();
+		if(course1==null) {
+			throw new ResourceNotFoundException("Course not found.");
+		}
+		
+		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(course.getCourseName());
+		
+		System.err.println(isPresent.getCourseId() +"   " + course1.getCourseId());
+		
+		if (isPresent != null &&  isPresent.getCourseId() !=course1.getCourseId()) {
+			throw new ResourceAlreadyExistException("Course already exist with this name.");
+		}
+		
 		course1.setCourseName(course.getCourseName());
 		course1.setCourseFees(course.getCourseFees());
 		course1.setDuration(course.getDuration());

@@ -43,8 +43,8 @@ public class Chapter {
 	private List<ChapterContent> chapterContent;
 	@OneToOne(cascade = CascadeType.ALL)
 	private Exam exam;
-	private Boolean isDeleted = false;
-	private Boolean isActive = true;
+	private Boolean isDeleted = Boolean.FALSE;
+	private Boolean isActive = Boolean.TRUE;
 
 	private Boolean isCompleted;
 

@@ -47,7 +47,6 @@ public class SubjectServiceImpl implements ISubjectService {
 	@Autowired
 	private CourseRepository courseRepository;
 
-
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
 		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName.trim());
@@ -57,7 +56,6 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject = new Subject();
 		subject.setSubjectName(subjectName.trim());
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
-	
 
 		Subject save = subRepo.save(subject);
 
@@ -106,11 +104,16 @@ public class SubjectServiceImpl implements ISubjectService {
 
 		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subjectResponse.getSubjectName().trim());
 
-		if (Objects.nonNull(sub)
-				&& Objects.equals(subjectResponse.getTechnologyStack().getId(), sub.getTechnologyStack().getId())) {
+//		if (Objects.nonNull(sub)
+//				&& Objects.equals(subjectResponse.getTechnologyStack().getId(), sub.getTechnologyStack().getId())) {
+//
+//			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
+//		}
 
+		if (Objects.nonNull(sub)) {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}
+
 		Optional<Subject> findById = subRepo.findById(subjectResponse.getSubjectId());
 		if (findById.isPresent()) {
 			findById.get().setSubjectName(subjectResponse.getSubjectName());
@@ -296,11 +299,9 @@ public class SubjectServiceImpl implements ISubjectService {
 			response.put("subjectName", (String) allChapterWithSubjectId.get(0)[2]);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
-	
-	
+
 	public Subject checkSubjectIsPresent(Integer subjectId) {
-		return subRepo.findById(subjectId).orElseThrow(()-> new ResourceNotFoundException("Subject not found!!"));
+		return subRepo.findById(subjectId).orElseThrow(() -> new ResourceNotFoundException("Subject not found!!"));
 	}
-	
+
 }
