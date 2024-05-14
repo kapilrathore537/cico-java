@@ -3,12 +3,14 @@ package com.cico.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Batch;
 import com.cico.model.Course;
@@ -45,6 +47,13 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public ApiResponse createBatch(BatchRequest request) {
+		
+		
+		Batch isPresent = batchRepository.findByBatchNameAndIsDeletedFalse(request.getBatchName());
+		if(isPresent!=null) {
+			throw new ResourceAlreadyExistException("Batch already exist");
+		}
+		
 		Course course = courseRepository.findById(request.getCourseId())
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 		Batch batch = new Batch(request.getBatchName(), request.getBatchStartDate(), request.getBatchTiming(),
@@ -180,7 +189,21 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public ApiResponse updateBatch(Batch batch) {
+		
+
+		   Optional<Batch> batchres = batchRepository.findById(batch.getBatchId());
+		   if(!batchres.isPresent()) {
+			   throw new ResourceNotFoundException("Batch not found."); 
+		   }
+		
+		Batch isPresent = batchRepository.findByBatchNameAndIsDeletedFalse(batch.getBatchName());
+		
+		if(isPresent!=null && isPresent.getBatchId()!=batchres.get().getBatchId()) {
+			throw new ResourceAlreadyExistException("Batch already exist");
+		}
+		
 		Batch save = batchRepository.save(batch);
+		
 		if (Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, BATCH_UPDATE_SUCCESS, HttpStatus.CREATED);
 
