@@ -96,4 +96,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	@Query("SELECT COUNT(l) FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	public Long getTotalOnLeavesCount();
+
+	@Query("SELECT NEW com.cico.payload.StudentReponseForWeb(s.fullName,s.studentId) FROM Student s WHERE s NOT IN (SELECT f.student FROM Fees f )")
+	List<StudentReponseForWeb> allFeesRemainingStudent();
 }

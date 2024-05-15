@@ -289,6 +289,11 @@ public class StudentController {
 	public ResponseEntity<?> allStudent() {
 		return studentService.allStudent();
 	}
+	
+	@GetMapping("/allFeesRemainingStudent")
+	public ResponseEntity<?> allFeesRemainingStudent() {
+		return studentService.allFeesRemainingStudent();
+	}
 
 	@GetMapping("/deleteTodayAttendance/{id}")
 	public ResponseEntity<?> deleteTodayAttendance(@PathVariable("id") Integer id) {

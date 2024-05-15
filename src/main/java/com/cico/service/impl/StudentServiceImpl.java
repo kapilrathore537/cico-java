@@ -1947,4 +1947,13 @@ public class StudentServiceImpl implements IStudentService {
 		return response;
 	}
 
+	@Override
+	public ResponseEntity<?> allFeesRemainingStudent() {
+		
+		 List<StudentReponseForWeb> students = studRepo.allFeesRemainingStudent();
+		 
+		 return new ResponseEntity<>(students,HttpStatus.OK);
+
+	}
+
 }
