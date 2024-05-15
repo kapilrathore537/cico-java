@@ -116,4 +116,6 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getStudentByIdForWeb(Integer studentId);
 
+	public ResponseEntity<?> allFeesRemainingStudent();
+
 }

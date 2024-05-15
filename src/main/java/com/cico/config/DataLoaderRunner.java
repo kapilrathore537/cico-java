@@ -35,7 +35,7 @@ public class DataLoaderRunner implements CommandLineRunner{
 			Admin admin = new Admin();
 			admin.setAdminEmail("cicoadmin@gmail.com");
 			admin.setAdminName("CICO");
-			admin.setProfilePic("admin.png");
+			admin.setProfilePic("https://res.cloudinary.com/df04kiqy3/image/upload/v1707472824/profilePic/DefaultUser_vg4fff.jpg");
 			admin.setPassword(bCryptPasswordEncoder.encode("12345"));
 			admin.setUuid(UUID.randomUUID().toString());
 			admin.setRole(Roles.ADMIN.toString());
