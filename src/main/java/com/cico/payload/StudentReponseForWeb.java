@@ -29,6 +29,11 @@ public class StudentReponseForWeb {
 	private Double finalFees;
 	private Integer courseId;
 
+	public StudentReponseForWeb(String fullName, Integer studentId) {
+		this.studentId = studentId;
+		this.fullName = fullName;
+	}
+
 	// s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId
 	public StudentReponseForWeb(String fullName, String mobile, String profilePic, String applyForCourse,
 			Integer studentId) {

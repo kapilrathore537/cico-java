@@ -234,13 +234,11 @@ public class CourseServiceImpl implements ICourseService {
 		
 		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(course.getCourseName());
 		
-		
-		
+
 		if (isPresent != null &&  isPresent.getCourseId() !=course1.getCourseId()) {
 			throw new ResourceAlreadyExistException("Course already exist with this name.");
 		}
-//		System.err.println(isPresent.getCourseId() +"   " + course1.getCourseId());
-		
+	
 		course1.setCourseName(course.getCourseName());
 		course1.setCourseFees(course.getCourseFees());
 		course1.setDuration(course.getDuration());
@@ -413,7 +411,7 @@ public class CourseServiceImpl implements ICourseService {
 		if (student.isPresent()) {
 			List<Course> allCourses = courseRepository.findAll();
 			List<CourseResponse> list = allCourses.stream()
-					.filter(obj -> obj.getCourseId() != student.get().getCourse().getCourseId())
+					.filter(obj -> obj.getCourseId() != student.get().getCourse().getCourseId() && !obj.getIsDeleted())
 					.map(this::courseToCourseResponse).toList();
 
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
