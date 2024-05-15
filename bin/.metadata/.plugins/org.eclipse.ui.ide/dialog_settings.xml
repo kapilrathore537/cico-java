@@ -38,9 +38,19 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="C:\Users\ratho\OneDrive\Desktop\cico-running\copy-27-02-24\smartTracko-main"/>
+			<item value="C:\Users\ratho\OneDrive\Desktop\cico-running\copy-27-02-24"/>
 			<item value="D:\SmartTracko-CICOJava\SmartTracko-CICOJava"/>
 			<item value="D:\Cisco-WorkPlace\SmartTracko-CICOJava"/>
 			<item value="E:\spring\CICOSPRINGBOOT\SmartTracko-CICOJava"/>
+		</list>
+	</section>
+	<section name="ChooseWorkspaceDialogSettings">
+		<item key="DIALOG_X_ORIGIN" value="496"/>
+		<item key="DIALOG_Y_ORIGIN" value="31"/>
+	</section>
+	<section name="WORKBENCH_SETTINGS">
+		<list key="ENABLED_TRANSFERS">
 		</list>
 	</section>
 </section>

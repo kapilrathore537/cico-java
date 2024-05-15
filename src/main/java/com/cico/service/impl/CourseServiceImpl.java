@@ -234,11 +234,12 @@ public class CourseServiceImpl implements ICourseService {
 		
 		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(course.getCourseName());
 		
-		System.err.println(isPresent.getCourseId() +"   " + course1.getCourseId());
+		
 		
 		if (isPresent != null &&  isPresent.getCourseId() !=course1.getCourseId()) {
 			throw new ResourceAlreadyExistException("Course already exist with this name.");
 		}
+//		System.err.println(isPresent.getCourseId() +"   " + course1.getCourseId());
 		
 		course1.setCourseName(course.getCourseName());
 		course1.setCourseFees(course.getCourseFees());
