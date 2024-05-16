@@ -4,17 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.RandomAccess;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,11 +22,9 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Exam;
 import com.cico.model.Question;
-import com.cico.model.Student;
 import com.cico.model.Subject;
 import com.cico.model.SubjectExam;
 import com.cico.payload.QuestionResponse;
-import com.cico.payload.SubjectExamResponse;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
@@ -62,9 +57,6 @@ public class QuestionServiceImpl implements IQuestionService {
 
 	@Autowired
 	private SubjectExamRepo subjectExamRepo;
-
-	@Autowired
-	private StudentRepository studentRepository;
 
 	@Autowired
 	private ExamServiceImpl examServiceImpl;
@@ -136,9 +128,14 @@ public class QuestionServiceImpl implements IQuestionService {
 			String option3, String option4, String correctOption, MultipartFile image) {
 
 		Map<String, Object> response = new HashMap<>();
-		System.out.println(option1 + "" + option2 + "" + option3 + "" + option4);
+		
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
+		
+		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
+		if (Objects.nonNull(questionObj) && question.getQuestionContent() !=questionObj.getQuestionContent())
+			throw new ResourceAlreadyExistException("Question already exist");
+		
 		if (questionContent != null)
 			question.setQuestionContent(questionContent);
 		else
