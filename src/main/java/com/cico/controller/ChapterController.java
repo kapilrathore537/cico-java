@@ -65,8 +65,8 @@ public class ChapterController {
 
 	@PutMapping("/updateChapter")
 	public ResponseEntity<?> updateChapter(@RequestParam("chapterId") Integer chapterId,
-			@RequestParam("chapterName") String chapterName) {
-		return chapterService.updateChapter(chapterId, chapterName);
+			@RequestParam("chapterName") String chapterName,@RequestParam("subjectId")Integer subjectId) {
+		return chapterService.updateChapter(chapterId, chapterName,subjectId);
 	}
 
 	@GetMapping("/getChapterById")

@@ -14,7 +14,7 @@ public interface IChapterService {
 
 	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image) ;
 
-	ResponseEntity<?> updateChapter(Integer chapterId,String chapterName);
+	ResponseEntity<?> updateChapter(Integer chapterId,String chapterName, Integer subjectId);
 
 	Map<String, Object> getChapterById(Integer chapterId);
 

@@ -24,4 +24,7 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
 
 	Chapter findByChapterNameAndIsDeletedAndIsActiveTrue(String chapterName, boolean b);
 
+	@Query(nativeQuery = true, value = "SELECT * FROM Chapter as c WHERE c.chapter_name =:chapterName AND c.is_deleted =:b AND c.subject_id = :subjectId")
+	Chapter findByChapterNameAndSubjectIdAndIsDeleted(String chapterName, Integer subjectId, boolean b);
+
 }

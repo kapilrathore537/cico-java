@@ -49,12 +49,12 @@ public class ChapterServiceImpl implements IChapterService {
 	FileServiceImpl fileServiceImpl;
 
 	@Override
-	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {
-		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {		
+		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
+		if (ch != null)
+			throw new ResourceAlreadyExistException("Chapter already present with name..");	
 		Map<String, Object> response = new HashMap<>();
-		if (Objects.nonNull(obj)) {
-			throw new ResourceAlreadyExistException("Chapter already present with name..");
-		}
+		
 		Subject subject = subjectRepo.findById(subjectId).get();
 
 		Chapter chapter = new Chapter();
@@ -80,27 +80,22 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName) {
+	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName, Integer subjectId) {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
-		if (chapter.getChapterName().equals(chapterName.trim())) {
+		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
+	
+		if (ch != null && !ch.getChapterId().equals(chapterId))
 			throw new ResourceAlreadyExistException("Chapter already present with name..");
-		}
-		
-		Chapter ch = chapterRepo.findByChapterNameAndIsDeleted(chapterName.trim(), false);
-		if(ch!=null) {
-			throw new ResourceAlreadyExistException("Chapter already present with name..");
-		}
-		
-		
+
 		chapter.setChapterName(chapterName.trim());
 		chapterRepo.save(chapter);
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
+	
 	@Override
 	public Map<String, Object> getChapterById(Integer chapterId) {
 		Map<String, Object> response = new HashMap<>();
