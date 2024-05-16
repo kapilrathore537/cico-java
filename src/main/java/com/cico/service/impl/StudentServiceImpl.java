@@ -266,7 +266,7 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> registerStudent(Student student) {
 
-		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail(), student.getMobile());
+		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail().trim(), student.getMobile().trim());
 		if (!findByEmailAndMobile.isPresent()) {
 			Optional<Course> course = courseRepository.findByCourseId(student.getCourse().getCourseId());
 			student.setCourse(course.get());
