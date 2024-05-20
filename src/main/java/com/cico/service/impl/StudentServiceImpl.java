@@ -525,6 +525,7 @@ public class StudentServiceImpl implements IStudentService {
 							LocalDateTime checkOutDateTime = LocalDateTime.now();
 							Duration duration = Duration.between(checkInDateTime, checkOutDateTime);
 							long workingHours = duration.getSeconds();
+							System.out.println(workingHours);
 							if (workingHours >= (Long.parseLong(organizationInfo.getWorkingHours()) * 3600)) {
 								attendanceData.setCheckOutDate(LocalDate.now());
 								attendanceData.setCheckOutTime(LocalTime.now());
