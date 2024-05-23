@@ -120,4 +120,6 @@ public class AppConstants {
 
 	public static final String SORRY_EXAM_END = "Opps!!  Exam End you don't take it now!!";
 
+	public static final String NEW_TASK_ADDED_SUCCESSFULLY = "New t	ask added successfully!!";
+
 }

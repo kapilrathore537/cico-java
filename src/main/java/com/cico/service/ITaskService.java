@@ -14,8 +14,6 @@ public interface ITaskService {
 
 	ResponseEntity<?> createTask(TaskRequest taskRequest);
 
-	void updateTaskStatus(Long taskId);
-
 	List<Task> getFilteredTasks(TaskFilterRequest taskFilter);
 
 	ResponseEntity<?> getTaskById(Long taskId);
@@ -49,7 +47,7 @@ public interface ITaskService {
 	ResponseEntity<?> getTaskQuestion(Long questionId);
 
 	ResponseEntity<?> updateTaskQuestion(Long questionId, String question, String videoUrl, List<String> questionImages,
-			List<MultipartFile> newImages);
+			List<MultipartFile> newImages, Long taskId);
 
 	ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId,
 			Integer pageNumber, Integer pageSize);

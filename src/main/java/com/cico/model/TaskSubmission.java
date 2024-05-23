@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import com.cico.util.SubmissionStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class TaskSubmission {
 	private Long id;
 	private String taskDescription;
 	private String submittionFileName;
+	@JsonBackReference
 	@OneToOne
 	private Student student;
 

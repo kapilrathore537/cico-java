@@ -3,16 +3,13 @@ package com.cico.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,11 +37,6 @@ public class TaskQuestion {
 	private List<String> questionImages = new ArrayList<>();;
 
 	private String videoUrl;
-	
-	//private Long  taskId;
 
-//	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-//	private List<TaskSubmission> assignmentSubmissions;
-	
-	private Boolean isDeleted;
+	private Boolean isDeleted = Boolean.FALSE;
 }

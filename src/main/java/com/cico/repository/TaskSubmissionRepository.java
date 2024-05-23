@@ -15,9 +15,6 @@ import com.cico.util.SubmissionStatus;
 @Repository
 public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, Long> {
 
-	
-	
-	
 	@Query("SELECT NEW com.cico.model.TaskSubmission( ts.review, ts.status, ts.submissionDate, ts.submittionFileName, ts.taskDescription,t.taskName ) "
 			+ "FROM Task t JOIN t.assignmentSubmissions ts " + "WHERE ts.student.studentId = :studentId AND ( ts.status=:status OR :status ='Unreviewed' )"
 			+ "ORDER BY ts.submissionDate DESC")
@@ -34,5 +31,6 @@ public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, 
 
 	@Query("SELECT ts FROM Task t RIGHT JOIN  t.assignmentSubmissions ts  WHERE ts.student.studentId =:studentId AND  t.taskId =:taskId")
 	TaskSubmission findByTaskIdAndStudentId(@Param("taskId") Long taskId, @Param("studentId") Integer studentId);
+	
 
 }

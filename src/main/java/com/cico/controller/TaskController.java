@@ -35,11 +35,11 @@ public class TaskController {
 		return taskService.createTask(taskRequest);
 	}
 
-	@PutMapping("/updateTaskStatus")
-	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId) {
-		taskService.updateTaskStatus(taskId);
-		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
-	}
+//	@PutMapping("/updateTaskStatus")
+//	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId) {
+//		taskService.updateTaskStatus(taskId);
+//		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
+//	}
 
 	@GetMapping("/getTaskById")
 	public ResponseEntity<?> getTaskById(@RequestParam("taskId") Long taskId) {
@@ -140,8 +140,9 @@ public class TaskController {
 	public ResponseEntity<?> updateTaskQuestion(@RequestParam("questionId") Long questionId,
 			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
 			@RequestParam(value = "questionImages", required = false) List<String> questionImages,
-			@RequestParam(value = "newImages", required = false) List<MultipartFile> newImages) {
-		return taskService.updateTaskQuestion(questionId, question, videoUrl, questionImages, newImages);
+			@RequestParam(value = "newImages", required = false) List<MultipartFile> newImages,
+			@RequestParam("taskId") Long taskId) {
+		return taskService.updateTaskQuestion(questionId, question, videoUrl, questionImages, newImages,taskId);
 
 	}
 	
