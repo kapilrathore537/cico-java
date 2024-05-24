@@ -46,9 +46,11 @@ public class Task {
 	private String attachmentStatus;
 
 	private Boolean isDeleted = Boolean.FALSE;
-	private Boolean isActive = Boolean.TRUE;
+	private Boolean isActive = Boolean.FALSE;
 
 	private LocalDateTime createdDate;
 	private LocalDateTime updatedDate;
 	private Boolean isLatest = Boolean.TRUE;
+	private Integer taskVersion;
+	private String versionType;
 }

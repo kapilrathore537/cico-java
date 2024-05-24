@@ -23,9 +23,10 @@ public class AssignmentAndTaskSubmission {
 	private String assignmentTitle;
 	private String description;
 	private Long taskNumber;
+	private Integer taskVersion;
 
 	public AssignmentAndTaskSubmission(Long taskId, Long totalSubmitted, Long unReveiwed, Long reveiwed,
-			String taskTitle, Boolean status) {
+			String taskTitle, Boolean status, Integer taskVersion) {
 		super();
 		this.taskId = taskId;
 		this.totalSubmitted = totalSubmitted;
@@ -33,7 +34,7 @@ public class AssignmentAndTaskSubmission {
 		this.reveiwed = reveiwed;
 		this.taskTitle = taskTitle;
 		this.status = status;
-
+		this.taskVersion = taskVersion;
 	}
 
 	public AssignmentAndTaskSubmission(Long taskId, Long totalSubmitted, Long unReveiwed, Long reveiwed, Long taskCount,

@@ -37,7 +37,7 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 	@Query("SELECT  NEW com.cico.payload.AssignmentAndTaskSubmission( t.id, " + "COUNT(DISTINCT ts), "
 			+ "COUNT(DISTINCT CASE WHEN ts.status = 'Unreviewed' THEN ts END), "
 			+ "COUNT(DISTINCT CASE WHEN ts.status IN ('Rejected' , 'Accepted' ,'Reviewing' ) THEN ts END), "
-			+ "t.taskName ,t.isActive) " + "FROM Task t " + "LEFT JOIN t.assignmentSubmissions ts "
+			+ "t.taskName ,t.isActive , t.taskVersion) " + "FROM Task t " + "LEFT JOIN t.assignmentSubmissions ts "
 			+ "WHERE (t.course.courseId = :courseId OR :courseId = 0) AND (t.subject.subjectId = :subjectId OR :subjectId = 0) "
 			+ "AND t.isDeleted = false " + "GROUP BY t.id  ")
 	Page<AssignmentAndTaskSubmission> findAllTaskStatusWithCourseIdAndSubjectId(@Param("courseId") Integer courseId,

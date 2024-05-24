@@ -88,7 +88,6 @@ public class TaskServiceImpl implements ITaskService {
 		task.setCourse(taskRequest.getCourse());
 		task.setSubject(taskRequest.getSubject());
 		task.setTaskName(taskRequest.getTaskName().trim());
-		task.setIsDeleted(false);
 		task.setCreatedDate(LocalDateTime.now());
 		Task newTask = taskRepo.save(task);
 		response.put(AppConstants.MESSAGE, AppConstants.CREATE_SUCCESS);
@@ -292,15 +291,20 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public ResponseEntity<?> getAllTaskOfStudent(Integer studentId, Integer pageNumber, Integer pageSize) {
 
-		// taskRepo.getAllTaskOfStudent(studentId, PageRequest.of(pageNumber,
-		// pageSize));
 		Map<String, Object> response = new HashMap<>();
 		Student student = studentRepository.findById(studentId).get();
 		List<TaskResponse> collect = new ArrayList<>();
 		student.getCourse().getSubjects().forEach(obj -> {
-			collect.addAll(taskRepo.findBySubjectAndIsDeletedFalseAndIsActiveTrue(obj).stream()
-					.filter(obj1 -> !obj1.getIsDeleted()).map(this::filterTask)
-					.map(task -> taskResponseFilter(task, studentId)).collect(Collectors.toList()));
+			collect.addAll(taskRepo.findBySubjectAndIsDeletedFalseAndIsActiveTrue(obj).stream().filter(checkOlder -> {
+				if (checkOlder.getIsLatest()) {
+					return true;
+				} else {
+					if (checkSubmission(checkOlder.getTaskId(), studentId)) {
+						return true;
+					} else
+						return false;
+				}
+			}).map(this::filterTask).map(task -> taskResponseFilter(task, studentId)).toList());
 		});
 
 		// this is for descending order
@@ -314,14 +318,14 @@ public class TaskServiceImpl implements ITaskService {
 //		            .sorted(Comparator.comparing(TaskResponse::getCreatedDate).reversed()) // Sort by date in descending order
 //		            .collect(Collectors.toList())
 //		    );
-//		});
+//		}); 
+
 		response.put(AppConstants.MESSAGE, collect.size() > 0 ? AppConstants.DATA_FOUND : AppConstants.NO_DATA_FOUND);
 		response.put("allTask", AppUtils.convertListToPage(collect, PageRequest.of(pageNumber, pageSize)));
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	public TaskResponse taskResponseFilter(Task task, Integer studentId) {
-
 		return new TaskResponse(task.getTaskId(), task.getTaskName(),
 				(Boolean) (isTaskSubmitted(task.getTaskId(), studentId).getBody()));
 	}
@@ -346,6 +350,11 @@ public class TaskServiceImpl implements ITaskService {
 //		}).collect(Collectors.toList());
 //	}
 //
+
+	public Boolean checkSubmission(Long taskId, Integer studentId) {
+		return (Boolean) isTaskSubmitted(taskId, studentId).getBody();
+	}
+
 	public Task filterTask(Task task) {
 		task.setTaskQuestion(task.getTaskQuestion().parallelStream().filter(obj -> !obj.getIsDeleted())
 				.collect(Collectors.toList()));
@@ -440,10 +449,11 @@ public class TaskServiceImpl implements ITaskService {
 		}
 		if (Objects.nonNull(newImages) && newImages.size() > 0) {
 			List<String> fileNames = newImages.parallelStream()
-					.map(file -> fileService.uploadFileInFolder(file, AppConstants.PROFILE_PIC))
+					.map(file -> fileService.uploadFileInFolder(file, AppConstants.TASK_ASSIGNMENT_FILES))
 					.collect(Collectors.toList());
 			taskQuestion.getQuestionImages().addAll(fileNames);
 		}
+		task.setUpdatedDate(LocalDateTime.now());
 
 		if (task.getAssignmentSubmissions().size() == 0) {
 			TaskQuestion save = taskQuestionRepository.save(taskQuestion);
@@ -451,9 +461,7 @@ public class TaskServiceImpl implements ITaskService {
 			response.put("question", save);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
-
 			// creating new task if their is no submission of this task
-
 			TaskQuestion t = new TaskQuestion();
 			t.setQuestion(taskQuestion.getQuestion());
 			t.setQuestionImages(taskQuestion.getQuestionImages());
@@ -466,20 +474,17 @@ public class TaskServiceImpl implements ITaskService {
 			newTask.setSubject(task.getSubject());
 			newTask.setTaskAttachment(task.getTaskAttachment());
 
-			if (task.getTaskName().contains("v")) {
-				String numberOnly = task.getTaskName().replaceAll("[^0-9]", "");
-				String newVersionNumber = String.valueOf(Integer.parseInt(numberOnly) + 1);
-				String newVersion = task.getTaskName().replaceAll("\\d", newVersionNumber);
-				newTask.setTaskName(newVersion);
-				task.setIsLatest(false);
-			} else {
-				newTask.setTaskName(task.getTaskName() + "(v1)");
-			}
-
+			// set old task latest false
+			task.setIsLatest(false);
+			// setting new task latest true
+			newTask.setIsLatest(true);
+			newTask.setTaskVersion(task.getTaskVersion() + 1);
+			newTask.setTaskName(task.getTaskName());
 			newTask.setCreatedDate(LocalDateTime.now());
 			newTask.setUpdatedDate(LocalDateTime.now());
 			// removing older task question in new task
 			newTask.getTaskQuestion().remove(taskQuestion);
+			// setting all new task question
 			newTask.getTaskQuestion().add(taskq);
 			Task temp = taskRepo.save(newTask);
 			response.put(AppConstants.MESSAGE, AppConstants.NEW_TASK_ADDED_SUCCESSFULLY);
@@ -487,7 +492,6 @@ public class TaskServiceImpl implements ITaskService {
 			response.put("taskId", temp.getTaskId());
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
-
 	}
 
 	@Override
