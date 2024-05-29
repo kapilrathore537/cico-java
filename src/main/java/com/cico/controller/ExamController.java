@@ -145,4 +145,19 @@ public class ExamController {
 		return examService.getAllSubjectNormalAndScheduleExamForStudent(studentId);
 	}
 
+	@PutMapping("changeSubjectExamStatus")
+	public ResponseEntity<?> changeSubjectExamStatus(@RequestParam Integer examId) {
+		return examService.changeSubjectExamStatus(examId);
+	}
+
+	@PutMapping("setSubjectExamStartStatus")
+	public ResponseEntity<?> setSubjectExamStartStatus(@RequestParam Integer examId) {
+		return examService.setSubjectExamStartStatus(examId);
+	}
+
+	@PutMapping("setChapterExamStartStatus")
+	public ResponseEntity<?> setChapterExamStartStatus(@RequestParam Integer examId) {
+		return examService.setChapterExamStartStatus(examId);
+	}
+
 }

@@ -41,7 +41,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 
 	
 	// for student  test
-	@Query("SELECT NEW com.cico.payload.SubjectExamResponse(e.examName,e.examId,s.technologyStack.imageName,e.examTimer,e.passingMarks,sr.scoreGet ,e.scheduleTestDate,e.totalQuestionForTest ,e.examType ,sr.id,s.subjectId,e.examStartTime ) "
+	@Query("SELECT NEW com.cico.payload.SubjectExamResponse(e.examName,e.examId,s.technologyStack.imageName,e.examTimer,e.passingMarks,sr.scoreGet ,e.scheduleTestDate,e.totalQuestionForTest ,e.examType ,sr.id,s.subjectId,e.examStartTime ,e.isStart) "
 			+ "FROM Course c " + "LEFT JOIN c.subjects s  ON s.isDeleted = 0 "
 			+ "JOIN s.exams e ON e.isActive = 1 AND e.isDeleted =0  "
 			+ "LEFT JOIN e.results sr ON sr.student.studentId =:studentId "

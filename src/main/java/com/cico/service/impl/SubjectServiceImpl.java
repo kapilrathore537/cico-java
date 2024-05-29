@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Course;
 import com.cico.model.Subject;
-import com.cico.model.SubjectExam;
 import com.cico.payload.ChapterResponse;
 import com.cico.payload.SubjectResponse;
 import com.cico.payload.TechnologyStackResponse;

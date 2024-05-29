@@ -89,6 +89,7 @@ public class TaskServiceImpl implements ITaskService {
 		task.setSubject(taskRequest.getSubject());
 		task.setTaskName(taskRequest.getTaskName().trim());
 		task.setCreatedDate(LocalDateTime.now());
+		task.setUpdatedDate(LocalDateTime.now());
 		Task newTask = taskRepo.save(task);
 		response.put(AppConstants.MESSAGE, AppConstants.CREATE_SUCCESS);
 		response.put("taskId", newTask.getTaskId());
@@ -295,8 +296,14 @@ public class TaskServiceImpl implements ITaskService {
 		Student student = studentRepository.findById(studentId).get();
 		List<TaskResponse> collect = new ArrayList<>();
 		student.getCourse().getSubjects().forEach(obj -> {
-			collect.addAll(taskRepo.findBySubjectAndIsDeletedFalseAndIsActiveTrue(obj).stream().filter(checkOlder -> {
-				if (checkOlder.getIsLatest()) {
+			collect.addAll(taskRepo.findBySubjectAndIsDeletedFalse(obj).stream().filter(checkOlder -> {
+				if (checkOlder.getIsLatest()){
+					if (!checkOlder.getIsActive()) {
+						if (checkSubmission(checkOlder.getTaskId(), studentId)) {
+							return true;
+						}else
+							return false;
+					}
 					return true;
 				} else {
 					if (checkSubmission(checkOlder.getTaskId(), studentId)) {
@@ -478,7 +485,10 @@ public class TaskServiceImpl implements ITaskService {
 			task.setIsLatest(false);
 			// setting new task latest true
 			newTask.setIsLatest(true);
-			newTask.setTaskVersion(task.getTaskVersion() + 1);
+			if (task.getTaskVersion() != null)
+				newTask.setTaskVersion(task.getTaskVersion() + 1);
+			else
+				newTask.setTaskVersion(1);
 			newTask.setTaskName(task.getTaskName());
 			newTask.setCreatedDate(LocalDateTime.now());
 			newTask.setUpdatedDate(LocalDateTime.now());

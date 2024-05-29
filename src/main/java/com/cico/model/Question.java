@@ -23,7 +23,7 @@ public class Question {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer questionId;
 
-	@Column(unique = true,columnDefinition = "longtext")
+	@Column(unique = true, columnDefinition = "longtext")
 	@NonNull
 	private String questionContent;
 
@@ -31,10 +31,11 @@ public class Question {
 	private String option2;
 	private String option3;
 	private String option4;
-	
+
 	private String correctOption;
-	private String selectedOption;// select by student 
+	private String selectedOption;// select by student
 	private String questionImage;
-	private Boolean isDeleted = false;
-	private Boolean isActive = true;
+	private Boolean isDeleted = Boolean.FALSE;
+	private Boolean isActive = Boolean.TRUE;
+	private Boolean isSelected = Boolean.FALSE;
 }

@@ -45,4 +45,10 @@ public interface IExamService {
 
 	ResponseEntity<?> getAllSubjectNormalAndScheduleExamForStudent(Integer studentId);
 
+	ResponseEntity<?> changeSubjectExamStatus(Integer examId);
+
+	ResponseEntity<?> setSubjectExamStartStatus(Integer examId);
+
+	ResponseEntity<?> setChapterExamStartStatus(Integer examId);
+
 }

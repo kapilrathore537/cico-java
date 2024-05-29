@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.cico.util.ExamType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Data;
 
@@ -46,8 +47,9 @@ public class SubjectExam {
 	private LocalTime examStartTime;
 	private LocalDateTime createdDate;
 	private LocalTime extraTime;
+	private Boolean isStart = Boolean.FALSE;
+	@JsonBackReference
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	//@JoinColumn
 	private List<SubjectExamResult> results = new ArrayList<>();
 
 }

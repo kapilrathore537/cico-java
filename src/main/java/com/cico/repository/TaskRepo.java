@@ -28,7 +28,7 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 
 	List<Task> findByIsDeletedFalse();
 
-	List<Task> findBySubjectAndIsDeletedFalseAndIsActiveTrue(Subject subject);
+	List<Task> findBySubjectAndIsDeletedFalse(Subject subject);
 
 	Optional<Task> findBySubjectAndIsDeletedFalse(Long taskId);
 

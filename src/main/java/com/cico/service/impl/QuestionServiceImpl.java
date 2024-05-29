@@ -314,6 +314,8 @@ public class QuestionServiceImpl implements IQuestionService {
 			int randomIndex = random.nextInt(allQuestions.size());
 			randomQuestionList.add(allQuestions.remove(randomIndex));
 		}
+		
+		questionRepo.setQuestionIsSelectdTrue(randomQuestionList);
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 		response.put(AppConstants.QUESTIONS,
 				randomQuestionList.parallelStream().map(obj -> questionFilter(obj)).collect(Collectors.toList()));

@@ -19,7 +19,7 @@ public class SubjectExamResponse {
 	private Integer examId;
 	private Integer subjectId;
 	private String examImage;
-	private boolean isActive;
+	private Boolean isActive;
 	private Integer examTimer;
 	private Integer totalQuestionForTest;
 	private Integer passingMarks;
@@ -32,10 +32,11 @@ public class SubjectExamResponse {
 	private LocalTime examStartTime;
 	private Boolean isExamEnd;
 	private Integer extraTime;
+	private Boolean isStart;
 
 	public SubjectExamResponse(String examName, Integer examId, String examImage, Integer examTimer,
 			Integer passingMarks, Integer scoreGet, LocalDate scheduleTestDate, Integer totalQuestionForTest,
-			ExamType examType, Integer resultId, Integer subjectId, LocalTime examStartTime) {
+			ExamType examType, Integer resultId, Integer subjectId, LocalTime examStartTime, Boolean isStart) {
 		super();
 
 		this.examId = examId;
@@ -53,6 +54,7 @@ public class SubjectExamResponse {
 		this.examTimer = examTimer;
 		this.subjectId = subjectId;
 		this.examStartTime = examStartTime;
+		this.isStart = isStart;
 	}
 
 }

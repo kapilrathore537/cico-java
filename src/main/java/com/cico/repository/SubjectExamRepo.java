@@ -21,4 +21,10 @@ public interface SubjectExamRepo extends JpaRepository<SubjectExam, Integer> {
 	@Query("SELECT  s FROM SubjectExam s   RIGHT JOIN  s.results r WHERE  s.examId =:examId AND r.student.studentId =:studentId  ")
 	Optional<SubjectExam> findByExamIdAndStudentId(Integer examId, Integer studentId);
 
+
+
+	Optional<SubjectExam> findByExamNameAndIsDeletedFalseAndIsActiveTrue(String trim);
+
+	Optional<SubjectExam> findByExamNameAndIsDeletedFalse(String trim);
+
 }

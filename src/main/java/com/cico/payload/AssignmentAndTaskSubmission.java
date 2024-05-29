@@ -35,6 +35,7 @@ public class AssignmentAndTaskSubmission {
 		this.taskTitle = taskTitle;
 		this.status = status;
 		this.taskVersion = taskVersion;
+	
 	}
 
 	public AssignmentAndTaskSubmission(Long taskId, Long totalSubmitted, Long unReveiwed, Long reveiwed, Long taskCount,
