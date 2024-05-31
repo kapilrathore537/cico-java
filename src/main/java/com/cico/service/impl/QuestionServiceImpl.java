@@ -147,50 +147,51 @@ public class QuestionServiceImpl implements IQuestionService {
 		// type 1 for checking chapter exam question
 		// type 2 for checking subject exam question
 		if (type == 1) {
+
 			Optional<Exam> exam = examRepo.findByExamIdAndIsDeleted(examId, false);
-			if (exam.isEmpty()) {
+			if (exam.isEmpty())
 				throw new ResourceNotFoundException("Exam not found ");
-			}
-			if(exam.get().getIsStarted() || exam.get().getIsActive() || exam.get().getIsStarted()) {
-				response.put(AppConstants.MESSAGE,"Can't update the question exam are activated or question is already selected in subjecte exam");
+
+			if (exam.get().getIsStarted() || exam.get().getIsActive()) {
+				response.put(AppConstants.MESSAGE,
+						"Can't update the question exam are activated or question is already selected in subjecte exam");
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
 
-			if (Objects.nonNull(questionObj) && exam.get().getQuestions().contains(questionObj)
-					&& questionObj.getQuestionId() != question.getQuestionId()) {
+			if (Objects.nonNull(questionObj) && exam.get().getQuestions().contains(questionObj)) {
 				throw new ResourceAlreadyExistException("Question already exist");
 			}
-		} else  if(type==2){ 
-         
+		} else if (type == 2) {
 			Optional<Subject> subject = subjectRepository.findBySubjectIdAndIsDeleted(examId);
-			
-			if (subject.isEmpty()) {
-				throw new ResourceNotFoundException("subject not found ");
-			}
-			
-			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
 
+			if (subject.isEmpty()) {
+				throw new ResourceNotFoundException("Subject not found ");
+			}
+			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
+			
 			if (Objects.nonNull(questionObj) && subject.get().getQuestions().contains(questionObj)
 					&& questionObj.getQuestionId() != question.getQuestionId()) {
 				throw new ResourceAlreadyExistException("Question already exist");
 			}
-		}else {
+
+		} else {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
 		if (questionContent != null)
 			question.setQuestionContent(questionContent.trim());
 		if (option1 != null)
-			question.setOption1(option1.trim());		
+			question.setOption1(option1.trim());
 		if (option2 != null)
-			question.setOption2(option2.trim());			
+			question.setOption2(option2.trim());
 		if (option3 != null)
-			question.setOption3(option3.trim());			
+			question.setOption3(option3.trim());
 		if (option4 != null)
-			question.setOption4(option4.trim());			
+			question.setOption4(option4.trim());
 		if (correctOption != null)
 			question.setCorrectOption(correctOption.trim());
-			
+
 		if (image != null && !image.isEmpty()) {
 			if (image != null) {
 				question.setQuestionImage(image.getOriginalFilename());

@@ -85,9 +85,9 @@ public class ChapterServiceImpl implements IChapterService {
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
-		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
+		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName.trim(), subjectId, false);
 
-		if (ch != null && !ch.getChapterId().equals(chapterId))
+		if (ch != null)
 			throw new ResourceAlreadyExistException("Chapter already present with name..");
 
 		chapter.setChapterName(chapterName.trim());
@@ -253,6 +253,9 @@ public class ChapterServiceImpl implements IChapterService {
 		response.put("chapterName", chapter.getChapterName());
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 		response.put("examId", chapter.getExam().getExamId());
+		
+		response.put("isExamActivate",chapter.getExam().getIsActive());
+		
 		response.put("chapterContent", chapter.getChapterContent().parallelStream().filter(obj -> !obj.getIsDeleted())
 				.map(this::chapterContentResponse).toList());
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -287,7 +290,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 		response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 		response.put("questions", list);
-		response.put("isActive",chapter.get().getExam().getIsActive());
+		response.put("isActive", chapter.get().getExam().getIsActive());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
