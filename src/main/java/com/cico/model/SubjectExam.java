@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -29,7 +28,6 @@ public class SubjectExam {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer examId;
 
-	@Column(unique = true)
 	private String examName;
 
 	private Integer score;
@@ -46,6 +44,7 @@ public class SubjectExam {
 	private LocalDate scheduleTestDate;
 	private LocalTime examStartTime;
 	private LocalDateTime createdDate;
+	private LocalDateTime updatedDate;
 	private LocalTime extraTime;
 	private Boolean isStart = Boolean.FALSE;
 	@JsonBackReference

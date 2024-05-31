@@ -17,4 +17,5 @@ public class QuestionResponse {
 	private String correctOption;
 	private String selectedOption;// select by student 
 	private String questionImage;
+	private Boolean isSelected;
 }

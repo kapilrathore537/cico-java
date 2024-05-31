@@ -67,17 +67,23 @@ public class QuestionServiceImpl implements IQuestionService {
 	@Override
 	public Question addQuestionToChapterExam(Integer chapterId, String questionContent, String option1, String option2,
 			String option3, String option4, MultipartFile image, String correctOption) {
-		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
-		if (Objects.nonNull(questionObj))
+		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
+
+		Optional<Chapter> chapter = chapterRepository.findById(chapterId);
+		if (!chapter.isPresent()) {
+			throw new ResourceNotFoundException("Chapter not found ");
+		}
+
+		if (Objects.nonNull(questionObj) && chapter.get().getExam().getQuestions().contains(questionObj))
 			throw new ResourceAlreadyExistException("Question already exist");
 
 		questionObj = new Question();
-		questionObj.setQuestionContent(questionContent);
-		questionObj.setOption1(option1);
-		questionObj.setOption2(option2);
-		questionObj.setOption3(option3);
-		questionObj.setOption4(option4);
-		questionObj.setCorrectOption(correctOption);
+		questionObj.setQuestionContent(questionContent.trim());
+		questionObj.setOption1(option1.trim());
+		questionObj.setOption2(option2.trim());
+		questionObj.setOption3(option3.trim());
+		questionObj.setOption4(option4.trim());
+		questionObj.setCorrectOption(correctOption.trim());
 		if (image != null) {
 			questionObj.setQuestionImage(image.getOriginalFilename());
 			String file = fileService.uploadFileInFolder(image, AppConstants.SUBJECT_AND_CHAPTER_IMAGES);
@@ -85,8 +91,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		}
 
 		Question save = questionRepo.save(questionObj);
-		Chapter chapter = chapterRepository.findById(chapterId).get();
-		Exam exam = chapter.getExam();
+		Exam exam = chapter.get().getExam();
 		exam.getQuestions().add(save);
 		exam.setScore(exam.getQuestions().size());
 		exam.setExamTimer(exam.getQuestions().size());
@@ -103,12 +108,12 @@ public class QuestionServiceImpl implements IQuestionService {
 			throw new ResourceAlreadyExistException("Question already exist");
 
 		questionObj = new Question();
-		questionObj.setQuestionContent(questionContent);
-		questionObj.setOption1(option1);
-		questionObj.setOption2(option2);
-		questionObj.setOption3(option3);
-		questionObj.setOption4(option4);
-		questionObj.setCorrectOption(correctOption);
+		questionObj.setQuestionContent(questionContent.trim());
+		questionObj.setOption1(option1.trim());
+		questionObj.setOption2(option2.trim());
+		questionObj.setOption3(option3.trim());
+		questionObj.setOption4(option4.trim());
+		questionObj.setCorrectOption(correctOption.trim());
 		if (image != null) {
 			questionObj.setQuestionImage(image.getOriginalFilename());
 			String file = fileService.uploadFileInFolder(image, AppConstants.SUBJECT_AND_CHAPTER_IMAGES);
@@ -125,43 +130,67 @@ public class QuestionServiceImpl implements IQuestionService {
 
 	@Override
 	public ResponseEntity<?> updateQuestion(Integer questionId, String questionContent, String option1, String option2,
-			String option3, String option4, String correctOption, MultipartFile image) {
+			String option3, String option4, String correctOption, MultipartFile image, Integer examId, Integer type) {
 
 		Map<String, Object> response = new HashMap<>();
-		
+
+		// check question is present or not
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-		
-		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
-		if (Objects.nonNull(questionObj) && question.getQuestionContent() !=questionObj.getQuestionContent())
-			throw new ResourceAlreadyExistException("Question already exist");
-		
+
+		if (question.getIsSelected()) {
+			response.put(AppConstants.MESSAGE, "Update failed: Already selected for exams");
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		// check exam is present or not
+		// type 1 for checking chapter exam question
+		// type 2 for checking subject exam question
+		if (type == 1) {
+			Optional<Exam> exam = examRepo.findByExamIdAndIsDeleted(examId, false);
+			if (exam.isEmpty()) {
+				throw new ResourceNotFoundException("Exam not found ");
+			}
+			if(exam.get().getIsStarted() || exam.get().getIsActive() || exam.get().getIsStarted()) {
+				response.put(AppConstants.MESSAGE,"Can't update the question exam are activated or question is already selected in subjecte exam");
+			}
+			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
+
+			if (Objects.nonNull(questionObj) && exam.get().getQuestions().contains(questionObj)
+					&& questionObj.getQuestionId() != question.getQuestionId()) {
+				throw new ResourceAlreadyExistException("Question already exist");
+			}
+		} else  if(type==2){ 
+         
+			Optional<Subject> subject = subjectRepository.findBySubjectIdAndIsDeleted(examId);
+			
+			if (subject.isEmpty()) {
+				throw new ResourceNotFoundException("subject not found ");
+			}
+			
+			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
+
+			if (Objects.nonNull(questionObj) && subject.get().getQuestions().contains(questionObj)
+					&& questionObj.getQuestionId() != question.getQuestionId()) {
+				throw new ResourceAlreadyExistException("Question already exist");
+			}
+		}else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
 		if (questionContent != null)
-			question.setQuestionContent(questionContent);
-		else
-			question.setQuestionContent(question.getQuestionContent());
+			question.setQuestionContent(questionContent.trim());
 		if (option1 != null)
-			question.setOption1(option1);
-		else
-			question.setOption1(question.getOption1());
+			question.setOption1(option1.trim());		
 		if (option2 != null)
-			question.setOption2(option2);
-		else
-			question.setOption2(question.getOption2());
+			question.setOption2(option2.trim());			
 		if (option3 != null)
-			question.setOption3(option3);
-		else
-			question.setOption3(question.getOption3());
+			question.setOption3(option3.trim());			
 		if (option4 != null)
-			question.setOption4(option4);
-		else
-			question.setOption4(question.getOption4());
-
+			question.setOption4(option4.trim());			
 		if (correctOption != null)
-			question.setCorrectOption(correctOption);
-		else
-			question.setCorrectOption(question.getCorrectOption());
-
+			question.setCorrectOption(correctOption.trim());
+			
 		if (image != null && !image.isEmpty()) {
 			if (image != null) {
 				question.setQuestionImage(image.getOriginalFilename());
@@ -256,7 +285,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		Map<String, Object> response = new HashMap<>();
 		Subject subject = subjectServiceImpl.checkSubjectIsPresent(subjectId);
 		subject.getChapters().stream().forEach(obj -> {
-			obj.getExam().getQuestions().parallelStream().forEach(obj1 -> {
+			obj.getExam().getQuestions().stream().forEach(obj1 -> {
 				if (obj1.getIsActive() && !obj1.getIsDeleted()) {
 					questionCount += 1;
 				}
@@ -282,7 +311,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		SubjectExam exam2 = examServiceImpl.checkSubjectExamIsPresent(examId);
 
 		if (exam2.getScheduleTestDate() == LocalDate.now()
-				&& exam2.getExamStartTime().getMinute() <= LocalDateTime.now().getMinute()+15
+				&& exam2.getExamStartTime().getMinute() <= LocalDateTime.now().getMinute() + 15
 				&& exam2.getExamStartTime().getHour() == LocalDateTime.now().getHour())
 
 			// return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -299,7 +328,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		allQuestions.addAll(subject.getQuestions().parallelStream()
 				.filter(obj -> !obj.getIsDeleted() && obj.getIsActive()).collect(Collectors.toList()));
 
-		List<Chapter> chapters = subject.getChapters().stream().filter(obj -> !obj.getIsDeleted())
+		List<Chapter> chapters = subject.getChapters().parallelStream().filter(obj -> !obj.getIsDeleted())
 				.collect(Collectors.toList());
 		List<List<Question>> collect = chapters.parallelStream().filter(o -> !o.getIsDeleted())
 				.map(obj -> obj.getExam().getQuestions()).collect(Collectors.toList());
@@ -314,7 +343,7 @@ public class QuestionServiceImpl implements IQuestionService {
 			int randomIndex = random.nextInt(allQuestions.size());
 			randomQuestionList.add(allQuestions.remove(randomIndex));
 		}
-		
+
 		questionRepo.setQuestionIsSelectdTrue(randomQuestionList);
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 		response.put(AppConstants.QUESTIONS,
@@ -332,6 +361,8 @@ public class QuestionServiceImpl implements IQuestionService {
 		q.setQuestionContent(question.getQuestionContent());
 		q.setQuestionImage(question.getQuestionImage());
 		q.setQuestionId(question.getQuestionId());
+		q.setIsSelected(question.getIsSelected());
+
 		return q;
 	}
 

@@ -49,6 +49,10 @@ public interface IExamService {
 
 	ResponseEntity<?> setSubjectExamStartStatus(Integer examId);
 
-	ResponseEntity<?> setChapterExamStartStatus(Integer examId);
+	ResponseEntity<?> setChapterExamStartStatus(Integer chapterId);
+
+	ResponseEntity<?> changeChapterExamStatus(Integer examId);
+
+	ResponseEntity<?> getChapterExam(Integer chapterId);
 
 }

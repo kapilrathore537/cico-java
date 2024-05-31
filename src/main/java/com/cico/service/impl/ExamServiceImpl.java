@@ -1,5 +1,6 @@
 package com.cico.service.impl;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -84,7 +85,7 @@ public class ExamServiceImpl implements IExamService {
 		Optional<ChapterExamResult> findByChapterAndStudent = chapterExamResultRepo.findByChapterAndStudent(chapter,
 				student);
 		if (findByChapterAndStudent.isPresent())
-			throw new ResourceAlreadyExistException("Your Are Already Submited This Test");
+			throw new ResourceAlreadyExistException("You have already submitted this test");
 
 		ChapterExamResult examResult = new ChapterExamResult();
 		Map<Integer, String> review = chapterExamResult.getReview();
@@ -161,7 +162,7 @@ public class ExamServiceImpl implements IExamService {
 		Optional<SubjectExamResult> result = subjectExamResultRepo.findByExamIdAndStudentId(request.getExamId(),
 				student);
 		if (result.isPresent())
-			throw new ResourceAlreadyExistException("Your Are Already Submited This Exam");
+			throw new ResourceAlreadyExistException("You have already submitted this test");
 
 		SubjectExamResult examResult = new SubjectExamResult();
 		Map<Integer, String> review = request.getReview();
@@ -367,56 +368,100 @@ public class ExamServiceImpl implements IExamService {
 		return exam;
 	}
 
+	public LocalDateTime changeIntoLocalDateTime(LocalDate date, LocalTime time) {
+
+		LocalDate scheduleTestDate = LocalDate.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+		LocalTime examStartTime = LocalTime.of(time.getHour(), time.getMinute());
+		return scheduleTestDate.atTime(examStartTime);
+	}
+
 	@Override
 	public ResponseEntity<?> addSubjectExam(AddExamRequest request) {
 
 		Map<String, Object> response = new HashMap<>();
 
 		Subject subject = subjectServiceImpl.checkSubjectIsPresent(request.getSubjectId());
-		Map<String, Object> res = new HashMap<>();
 		SubjectExam exam = new SubjectExam();
 
-		Optional<SubjectExam> isExamExist = subjectExamRepo
-				.findByExamNameAndIsDeletedFalse(request.getExamName().trim());
-		if (isExamExist.isPresent())
+		Optional<SubjectExam> isExamExist = subject.getExams().stream().findFirst()
+				.filter(obj -> obj.getExamName().equals(request.getExamName().trim()));
+
+		// checking exam existance with the name;
+		boolean contains = isExamExist.isPresent() && subject.getExams().contains(isExamExist.get());
+
+		if (contains)
 			throw new ResourceAlreadyExistException(AppConstants.EXAM_ALREADY_PRESENT_WITH_THIS_NAME);
 
+		// schedule exam case
 		if (request.getScheduleTestDate() != null) {
+			// checking the date must not be before or equals to current date time
+			LocalDateTime scheduledDateTime = changeIntoLocalDateTime(request.getScheduleTestDate(),
+					request.getExamStartTime());
+
+			LocalDateTime currentDateTime = LocalDateTime.now();
+			if (scheduledDateTime.isBefore(currentDateTime) || scheduledDateTime.isEqual(currentDateTime)) {
+				response.put(AppConstants.MESSAGE, "Exam date and time must be in the future");
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			}
+
+			// ensuring!. checking exam time not under previous exam duration time
+			SubjectExam latestExam = subjectExamRepo.findLatestExam();
+
+			if (latestExam != null && subject.getExams().contains(latestExam)) {
+
+				LocalDateTime actuallatestExamTime = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
+						latestExam.getExamStartTime());
+				LocalDateTime latestExamTimeWithDuration = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
+						latestExam.getExamStartTime().plusMinutes(latestExam.getExamTimer()));
+
+				LocalDateTime requestDateTime = changeIntoLocalDateTime(request.getScheduleTestDate(),
+						request.getExamStartTime());
+
+				if (requestDateTime.isAfter(actuallatestExamTime)
+						&& requestDateTime.isBefore(latestExamTimeWithDuration)) {
+					Duration duration = Duration.between(requestDateTime, latestExamTimeWithDuration);
+
+					long hours = duration.toHours();
+					long minutes = duration.toMinutes() % 60;
+
+					String message = "";
+					if (hours != 0)
+						message = String.format(
+								"Please add the exam after %d hours and %d minutes from request date and time. An another exam is already scheduled during this time. or Add after this time",
+								hours, minutes);
+					else
+						message = String.format(
+								"Please add the exam after  %d minutes  from request date and time. An another exam is already scheduled during this time. or Add after this time",
+								minutes);
+
+					response.put(AppConstants.MESSAGE, message);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
+
+			}
 
 			exam.setScheduleTestDate(request.getScheduleTestDate());
 			exam.setExamStartTime(request.getExamStartTime());
 			exam.setExamType(ExamType.SCHEDULEEXAM);
 
-			// checking the date must be before or equals to current date time
-			LocalDate scheduleTestDate = LocalDate.of(request.getScheduleTestDate().getYear(),
-					request.getScheduleTestDate().getMonthValue(), request.getScheduleTestDate().getDayOfMonth());
-			LocalTime examStartTime = LocalTime.of(request.getExamStartTime().getHour(),
-					request.getExamStartTime().getMinute());
-
-			// Directly using the atTime method
-			LocalDateTime scheduledDateTime = scheduleTestDate.atTime(examStartTime);
-
-			LocalDateTime currentDateTime = LocalDateTime.now();
-			if (scheduledDateTime.isBefore(currentDateTime) || scheduledDateTime.isEqual(currentDateTime)) {
-				response.put(AppConstants.MESSAGE, "Exam date time must not be before till current date and time ");
-				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-			}
 		} else {
 			exam.setExamType(ExamType.NORMALEXAM);
 		}
 
 		exam.setPassingMarks(request.getPassingMarks());
 		exam.setExamImage(subject.getTechnologyStack().getImageName());
-		exam.setExamName(request.getExamName());
+		exam.setExamName(request.getExamName().trim());
 		exam.setTotalQuestionForTest(request.getTotalQuestionForTest());
 		exam.setExamTimer(request.getExamTimer());
+		exam.setCreatedDate(LocalDateTime.now());
+		exam.setUpdatedDate(LocalDateTime.now());
 		SubjectExam savedExam = subjectExamRepo.save(exam);
 		subject.getExams().add(savedExam);
 		subjectRepository.save(subject);
 
-		res.put(AppConstants.SUBJECT_EXAM, subjectExamResponseFilter(savedExam));
-		res.put(AppConstants.MESSAGE, AppConstants.EXAM_ADDED_SUCCESSFULLY);
-		return new ResponseEntity<>(res, HttpStatus.OK);
+		response.put(AppConstants.SUBJECT_EXAM, subjectExamResponseFilter(savedExam));
+		response.put(AppConstants.MESSAGE, AppConstants.EXAM_ADDED_SUCCESSFULLY);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override
@@ -431,29 +476,65 @@ public class ExamServiceImpl implements IExamService {
 				throw new ResourceAlreadyExistException(AppConstants.EXAM_ALREADY_PRESENT_WITH_THIS_NAME);
 		}
 		if (exam.getResults().size() != 0 || exam.getIsStart()) {
-			response.put(AppConstants.MESSAGE, "Can't update this exam. Already exam is completed or live now ");
+			response.put(AppConstants.MESSAGE, "Cannot update exam: It is either completed or currently live");
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		if (exam.getExamType().equals(ExamType.SCHEDULEEXAM)) {
+
 			if (request.getScheduleTestDate() != null)
 				exam.setScheduleTestDate(request.getScheduleTestDate());
 			if (request.getExamStartTime() != null)
 				exam.setExamStartTime(request.getExamStartTime());
 
-			// checking the date must be before or equals to current date time
-			LocalDate scheduleTestDate = LocalDate.of(request.getScheduleTestDate().getYear(),
-					request.getScheduleTestDate().getMonthValue(), request.getScheduleTestDate().getDayOfMonth());
-			LocalTime examStartTime = LocalTime.of(request.getExamStartTime().getHour(),
-					request.getExamStartTime().getMinute());
+			// checking the date must be after or equals to current date time
 
-			LocalDateTime scheduledDateTime = scheduleTestDate.atTime(examStartTime);
-
+			LocalDateTime scheduledDateTime = changeIntoLocalDateTime(request.getScheduleTestDate(),
+					request.getExamStartTime());
 			LocalDateTime currentDateTime = LocalDateTime.now();
 			if (scheduledDateTime.isBefore(currentDateTime) || scheduledDateTime.isEqual(currentDateTime)) {
-				response.put(AppConstants.MESSAGE, "Exam date time must not be before current date and time ");
+				response.put(AppConstants.MESSAGE, "Exam date and time cannot be in the past");
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
+
+			// ensuring!. checking exam time not under previous exam duration time
+
+			Subject subject = subjectServiceImpl.checkSubjectIsPresent(request.getSubjectId());
+			SubjectExam latestExam = subjectExamRepo.findLatestExam();
+
+			if (latestExam != null && subject.getExams().contains(latestExam)) {
+
+				LocalDateTime actuallatestExamTime = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
+						latestExam.getExamStartTime());
+				LocalDateTime latestExamTimeWithDuration = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
+						latestExam.getExamStartTime().plusMinutes(latestExam.getExamTimer()));
+
+				LocalDateTime requestDateTime = changeIntoLocalDateTime(request.getScheduleTestDate(),
+						request.getExamStartTime());
+
+				if (requestDateTime.isAfter(actuallatestExamTime)
+						&& requestDateTime.isBefore(latestExamTimeWithDuration)) {
+					Duration duration = Duration.between(requestDateTime, latestExamTimeWithDuration);
+
+					long hours = duration.toHours();
+					long minutes = duration.toMinutes() % 60;
+
+					String message = "";
+					if (hours != 0)
+						message = String.format(
+								"Please add the exam after %d hours and %d minutes from request date and time. An another exam is already scheduled during this time. or Add after this time",
+								hours, minutes);
+					else
+						message = String.format(
+								"Please add the exam after  %d minutes  from request date and time. An another exam is already scheduled during this time. or Add after this time",
+								minutes);
+
+					response.put(AppConstants.MESSAGE, message);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
+
+			}
+
 		}
 
 		if (request.getPassingMarks() != null)
@@ -464,6 +545,8 @@ public class ExamServiceImpl implements IExamService {
 			exam.setExamTimer(request.getExamTimer());
 		if (request.getTotalQuestionForTest() != null)
 			exam.setTotalQuestionForTest(request.getTotalQuestionForTest());
+
+		exam.setUpdatedDate(LocalDateTime.now());
 
 		SubjectExam examRes = subjectExamRepo.save(exam);
 		response.put(AppConstants.EXAM, subjectExamResponseFilter(examRes));
@@ -492,7 +575,7 @@ public class ExamServiceImpl implements IExamService {
 	@Override
 	public ResponseEntity<?> getAllSubjectNormalAndScheduleExam(Integer subjectId) {
 		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("subject not found!! "));
+				.orElseThrow(() -> new ResourceNotFoundException("subject not found!!"));
 
 		Map<String, Object> response = new HashMap<>();
 		List<SubjectExamResponse> normalExam = new ArrayList<>();
@@ -547,11 +630,9 @@ public class ExamServiceImpl implements IExamService {
 
 				if (now.isBefore(examEndTime)) {
 					obj.setIsExamEnd(false); // Exam is not ended
-					System.err.println("Exam is not ended  " + obj.getExamName());
 					obj.setExtraTime(1);
 				} else {
 					obj.setIsExamEnd(true);
-					System.err.println(" Exam has ended" + obj.getExamName());
 				}
 				scheduleExam.add(obj);
 			} else {
@@ -585,12 +666,76 @@ public class ExamServiceImpl implements IExamService {
 
 		SubjectExam exam = checkSubjectExamIsPresent(examId);
 		exam.setIsStart(true);
-		SubjectExam save = subjectExamRepo.save(exam);
+		subjectExamRepo.save(exam);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<?> setChapterExamStartStatus(Integer examId) {
-		return null;
+	public ResponseEntity<?> setChapterExamStartStatus(Integer chapterId) {
+
+		Map<String, Object> response = new HashMap<>();
+		Optional<Chapter> chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false);
+		if (chapter.isPresent()) {
+
+			Optional<Exam> exam = examRepo.findByExamIdAndIsDeleted(chapter.get().getExam().getExamId(), false);
+			if (exam.isPresent()) {
+				exam.get().setIsStarted(true);
+				examRepo.save(exam.get());
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+		}
+		response.put(AppConstants.MESSAGE, "Chapter not found");
+		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
 	}
+
+	@Override
+	public ResponseEntity<?> changeChapterExamStatus(Integer examId) {
+
+		Optional<Exam> exam = examRepo.findByExamIdAndIsDeleted(examId, false);
+		Map<String, Object> response = new HashMap<>();
+		if (exam.isPresent()) {
+			
+				if (!exam.get().getIsStarted()) {
+					exam.get().setIsActive(!exam.get().getIsActive());
+					examRepo.save(exam.get());
+
+					response.put("isActive", exam.get().getIsActive());
+					return new ResponseEntity<>(response, HttpStatus.OK);
+				} else {
+					response.put(AppConstants.MESSAGE, "Can't inactive this exam!. Exam is scheduled");
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
+		}
+		return new ResponseEntity<>("NOT FOUND",HttpStatus.NOT_FOUND);
+	}
+
+	@Override
+	public ResponseEntity<?> getChapterExam(Integer chapterId) {
+
+		Map<String, Object> response = new HashMap<>();
+		Optional<Chapter> chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false);
+		if (chapter.isPresent()) {
+			response.put("testQuestions", chapter.get().getExam().getQuestions().parallelStream()
+					.filter(obj -> !obj.getIsDeleted()).map(this::questionFilterWithoudCorrectOprion));
+			response.put("examTimer", chapter.get().getExam().getExamTimer());
+
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+		response.put(AppConstants.MESSAGE, "Chapter not found");
+		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+	}
+
+	public QuestionResponse questionFilterWithoudCorrectOprion(Question question) {
+		QuestionResponse questionResponse = new QuestionResponse();
+		questionResponse.setOption1(question.getOption1());
+		questionResponse.setOption2(question.getOption2());
+		questionResponse.setOption3(question.getOption3());
+		questionResponse.setOption4(question.getOption4());
+		questionResponse.setQuestionId(question.getQuestionId());
+		questionResponse.setQuestionContent(question.getQuestionContent());
+		questionResponse.setQuestionImage(question.getQuestionImage());
+		return questionResponse;
+	}
+
 }

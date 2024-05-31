@@ -14,7 +14,7 @@ public interface IQuestionService {
 			String option3, String option4, MultipartFile image, String correctOption);
 
 	ResponseEntity<?> updateQuestion(Integer questionId, String questionContent, String option1, String option2,
-			String option3, String option4, String correctOption, MultipartFile image);
+			String option3, String option4, String correctOption, MultipartFile image, Integer examId,Integer type);
 
 	List<Question> getAllQuestionByChapterId(Integer chapterId);
 

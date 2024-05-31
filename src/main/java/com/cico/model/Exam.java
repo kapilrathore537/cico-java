@@ -33,8 +33,9 @@ public class Exam {
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Question> questions;
 
-	private Boolean isDeleted;
+	private Boolean isDeleted = Boolean.FALSE;
 	private Boolean isActive = true;
 	private Integer examTimer;
+	private Boolean isStarted = Boolean.FALSE;
 
 }

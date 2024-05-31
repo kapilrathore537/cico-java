@@ -150,14 +150,26 @@ public class ExamController {
 		return examService.changeSubjectExamStatus(examId);
 	}
 
+	@PutMapping("changeChapterExamStatus")
+	public ResponseEntity<?> changeChapterExamStatus(@RequestParam Integer examId) {
+		return examService.changeChapterExamStatus(examId);
+	}
+
+	// start status
 	@PutMapping("setSubjectExamStartStatus")
 	public ResponseEntity<?> setSubjectExamStartStatus(@RequestParam Integer examId) {
 		return examService.setSubjectExamStartStatus(examId);
 	}
 
 	@PutMapping("setChapterExamStartStatus")
-	public ResponseEntity<?> setChapterExamStartStatus(@RequestParam Integer examId) {
-		return examService.setChapterExamStartStatus(examId);
+	public ResponseEntity<?> setChapterExamStartStatus(@RequestParam Integer chapterId) {
+		return examService.setChapterExamStartStatus(chapterId);
+	}
+	
+	// only exam question and timer are fetched here	
+	@GetMapping("getChapterExam")
+	public ResponseEntity<?>getChapterExam(@RequestParam("chapterId") Integer chapterId){
+		return examService.getChapterExam(chapterId);
 	}
 
 }

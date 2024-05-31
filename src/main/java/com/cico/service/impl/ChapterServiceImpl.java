@@ -49,12 +49,12 @@ public class ChapterServiceImpl implements IChapterService {
 	FileServiceImpl fileServiceImpl;
 
 	@Override
-	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {		
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {
 		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
 		if (ch != null)
-			throw new ResourceAlreadyExistException("Chapter already present with name..");	
+			throw new ResourceAlreadyExistException("Chapter already present with name..");
 		Map<String, Object> response = new HashMap<>();
-		
+
 		Subject subject = subjectRepo.findById(subjectId).get();
 
 		Chapter chapter = new Chapter();
@@ -86,7 +86,7 @@ public class ChapterServiceImpl implements IChapterService {
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
 		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
-	
+
 		if (ch != null && !ch.getChapterId().equals(chapterId))
 			throw new ResourceAlreadyExistException("Chapter already present with name..");
 
@@ -95,7 +95,7 @@ public class ChapterServiceImpl implements IChapterService {
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@Override
 	public Map<String, Object> getChapterById(Integer chapterId) {
 		Map<String, Object> response = new HashMap<>();
@@ -245,28 +245,27 @@ public class ChapterServiceImpl implements IChapterService {
 	@Override
 	public ResponseEntity<?> getChapterContentWithChapterId(Integer chapterId) {
 
-		List<ChapterContentResponse> res = new ArrayList<>();
-
-		List<Object[]> ch = chapterRepo.getChapterContentWithChapterId(chapterId);
 		Map<String, Object> response = new HashMap<>();
 
-		if (!ch.isEmpty() && ch.get(0)[1] != null) {
-			for (Object[] list : ch) {
-				ChapterContentResponse chapterContentResponse = new ChapterContentResponse();
-				chapterContentResponse.setContent((String) list[4]);
-				chapterContentResponse.setId((Integer) list[1]);
-				chapterContentResponse.setTitle((String) list[2]);
-				chapterContentResponse.setSubTitle((String) list[3]);
-				res.add(chapterContentResponse);
-			}
-		}
-		if (!ch.isEmpty()) {
-			response.put("chapterName", ch.get(0)[0]);
-		}
+		Chapter chapter = chapterRepo.findById(chapterId)
+				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+
+		response.put("chapterName", chapter.getChapterName());
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-		response.put("chapterContent", res);
+		response.put("examId", chapter.getExam().getExamId());
+		response.put("chapterContent", chapter.getChapterContent().parallelStream().filter(obj -> !obj.getIsDeleted())
+				.map(this::chapterContentResponse).toList());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 
+	}
+
+	public ChapterContentResponse chapterContentResponse(ChapterContent chapterContent) {
+		ChapterContentResponse chapterContentResponse = new ChapterContentResponse();
+		chapterContentResponse.setContent(chapterContent.getContent());
+		chapterContentResponse.setId(chapterContent.getId());
+		chapterContentResponse.setTitle(chapterContent.getTitle());
+		chapterContentResponse.setSubTitle(chapterContent.getSubTitle());
+		return chapterContentResponse;
 	}
 
 	@Override
@@ -275,12 +274,12 @@ public class ChapterServiceImpl implements IChapterService {
 		Optional<Chapter> chapter = chapterRepo.findById(chapterId);
 		Map<String, Object> response = new HashMap<>();
 
-		List<Question> questions = chapter.get().getExam().getQuestions().stream()
-				.filter(obj -> obj.getIsDeleted() == false).collect(Collectors.toList());
+		List<Question> questions = chapter.get().getExam().getQuestions().parallelStream()
+				.filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList());
 
 		if (questions.isEmpty()) {
 			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 
 		List<QuestionResponse> list = questions.parallelStream().map(obj -> questionFilter(obj))
@@ -288,6 +287,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 		response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 		response.put("questions", list);
+		response.put("isActive",chapter.get().getExam().getIsActive());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
@@ -303,7 +303,7 @@ public class ChapterServiceImpl implements IChapterService {
 		questionResponse.setQuestionId(question.getQuestionId());
 		questionResponse.setQuestionContent(question.getQuestionContent());
 		questionResponse.setQuestionImage(question.getQuestionImage());
-
+		questionResponse.setIsSelected(question.getIsSelected());
 		return questionResponse;
 	}
 }

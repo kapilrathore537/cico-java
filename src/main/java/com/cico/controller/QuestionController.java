@@ -55,9 +55,10 @@ public class QuestionController {
 			@RequestParam("option1") String option1, @RequestParam("option2") String option2,
 			@RequestParam("option3") String option3, @RequestParam("option4") String option4,
 			@RequestParam("questionId") Integer questionId, @RequestParam("correctOption") String correctOption,
-			@RequestParam(name = "image", required = false) MultipartFile image) {
+			@RequestParam(name = "image", required = false) MultipartFile image,
+			 @RequestParam("examId")Integer examId,@RequestParam("type")Integer type) {
 		return questionService.updateQuestion(questionId, questionContent, option1, option2, option3, option4,
-				correctOption, image);
+				correctOption, image,examId,type);
 	}
 
 	@GetMapping("/getAllQuestionByChapterId")
