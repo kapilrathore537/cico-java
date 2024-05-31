@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -29,11 +30,13 @@ public class DiscussionFormComment {
 	private LocalDateTime createdDate;
 //	@JsonIgnoreProperties("student")
 	@OneToOne
+	@JoinColumn
 	private Student student;
 	@Column(columnDefinition = "longtext")
 	private String content;
 	private String file;
 	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn
 	private List<CommentReply> commentReply = new ArrayList<>();
 
 }

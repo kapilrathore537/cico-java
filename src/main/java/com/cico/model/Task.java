@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -31,16 +32,20 @@ public class Task {
 
 	private String taskAttachment;
 
+	@JoinColumn
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<TaskQuestion> TaskQuestion = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn
 	private List<TaskSubmission> assignmentSubmissions;
 
 	@OneToOne
+	@JoinColumn
 	private Course course;
 
 	@OneToOne
+	@JoinColumn
 	private Subject subject;
 
 	private String attachmentStatus;

@@ -14,6 +14,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
 import com.cico.util.ExamType;
@@ -48,6 +49,7 @@ public class SubjectExam {
 	private LocalTime extraTime;
 	private Boolean isStart = Boolean.FALSE;
 	@JsonBackReference
+	@JoinColumn
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<SubjectExamResult> results = new ArrayList<>();
 

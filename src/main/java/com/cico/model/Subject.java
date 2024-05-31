@@ -33,14 +33,12 @@ public class Subject {
 	private List<Chapter> chapters = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL)
-	//@JoinColumn
 	@JoinColumn(name="subject_id")
 	private List<Question> questions = new ArrayList<>();
 
 	@OneToOne
 	private TechnologyStack technologyStack; // profile picture of subject
 	@OneToMany(cascade = CascadeType.ALL)
-//	@JoinColumn
 	@JoinColumn(name="subject_id")
 	private List<SubjectExam> exams = new ArrayList<>();
 	private Boolean isDeleted = false;

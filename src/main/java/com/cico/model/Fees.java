@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -30,6 +31,7 @@ public class Fees {
 	@ManyToOne
 	private Student student;
 	@OneToOne
+	@JoinColumn
 	private Course course;
 	private Double finalFees;
 	private Double feesPaid;
