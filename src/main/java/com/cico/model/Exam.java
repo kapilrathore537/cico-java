@@ -36,7 +36,7 @@ public class Exam {
 	private List<Question> questions;
 
 	private Boolean isDeleted = Boolean.FALSE;
-	private Boolean isActive = true;
+	private Boolean isActive = Boolean.FALSE;
 	private Integer examTimer;
 	private Boolean isStarted = Boolean.FALSE;
 

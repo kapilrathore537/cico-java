@@ -695,19 +695,24 @@ public class ExamServiceImpl implements IExamService {
 		Optional<Exam> exam = examRepo.findByExamIdAndIsDeleted(examId, false);
 		Map<String, Object> response = new HashMap<>();
 		if (exam.isPresent()) {
-			
-				if (!exam.get().getIsStarted()) {
-					exam.get().setIsActive(!exam.get().getIsActive());
-					examRepo.save(exam.get());
+			if (!exam.get().getIsStarted()) {
 
-					response.put("isActive", exam.get().getIsActive());
-					return new ResponseEntity<>(response, HttpStatus.OK);
-				} else {
-					response.put(AppConstants.MESSAGE, "Can't inactive this exam!. Exam is scheduled");
+				if (exam.get().getQuestions().size() == 0) {
+					response.put(AppConstants.MESSAGE, "Can't active this exam!. Add some questions here");
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
+
+				exam.get().setIsActive(!exam.get().getIsActive());
+				examRepo.save(exam.get());
+
+				response.put("isActive", exam.get().getIsActive());
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			} else {
+				response.put(AppConstants.MESSAGE, "Can't inactive this exam!. Exam is scheduled");
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			}
 		}
-		return new ResponseEntity<>("NOT FOUND",HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>("NOT FOUND", HttpStatus.NOT_FOUND);
 	}
 
 	@Override
