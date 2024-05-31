@@ -58,8 +58,7 @@ public class ChapterController {
 	}
 
 	@GetMapping("/getChapterContentWithChapterIdForAdmin")
-	public ResponseEntity<?> getChapterContentWithChapterId(@RequestParam("chapterId") Integer chapterId)
-			throws Exception {
+	public ResponseEntity<?> getChapterContentWithChapterId(@RequestParam("chapterId") Integer chapterId) {
 		return chapterService.getChapterContentWithChapterId(chapterId);
 	}
 

@@ -133,41 +133,41 @@ public class ExamController {
 		return examService.updateSubjectExam(request);
 	}
 
-	@GetMapping("getAllSubjectNormalAndScheduleExam")
+	@GetMapping("/getAllSubjectNormalAndScheduleExam")
 	public ResponseEntity<?> getAllSubjectNormalAndScheduleExam(@RequestParam("subjectId") Integer subjectId) {
 		return examService.getAllSubjectNormalAndScheduleExam(subjectId);
 	}
 
 	// student use
-	@GetMapping("getAllSubjectNormalAndScheduleExamForStudent")
+	@GetMapping("/getAllSubjectNormalAndScheduleExamForStudent")
 	public ResponseEntity<?> getAllSubjectNormalAndScheduleExamForStudent(
 			@RequestParam("studentId") Integer studentId) {
 		return examService.getAllSubjectNormalAndScheduleExamForStudent(studentId);
 	}
 
-	@PutMapping("changeSubjectExamStatus")
+	@PutMapping("/changeSubjectExamStatus")
 	public ResponseEntity<?> changeSubjectExamStatus(@RequestParam Integer examId) {
 		return examService.changeSubjectExamStatus(examId);
 	}
 
-	@PutMapping("changeChapterExamStatus")
+	@PutMapping("/changeChapterExamStatus")
 	public ResponseEntity<?> changeChapterExamStatus(@RequestParam Integer examId) {
 		return examService.changeChapterExamStatus(examId);
 	}
 
 	// start status
-	@PutMapping("setSubjectExamStartStatus")
+	@PutMapping("/setSubjectExamStartStatus")
 	public ResponseEntity<?> setSubjectExamStartStatus(@RequestParam Integer examId) {
 		return examService.setSubjectExamStartStatus(examId);
 	}
 
-	@PutMapping("setChapterExamStartStatus")
+	@PutMapping("/setChapterExamStartStatus")
 	public ResponseEntity<?> setChapterExamStartStatus(@RequestParam Integer chapterId) {
 		return examService.setChapterExamStartStatus(chapterId);
 	}
 	
 	// only exam question and timer are fetched here	
-	@GetMapping("getChapterExam")
+	@GetMapping("/getChapterExam")
 	public ResponseEntity<?>getChapterExam(@RequestParam("chapterId") Integer chapterId){
 		return examService.getChapterExam(chapterId);
 	}
