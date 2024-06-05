@@ -65,6 +65,7 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
   
 	@Query("SELECT COUNT(l) FROM Leaves l " +
 		       "WHERE FUNCTION('MONTH', l.leaveDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		       "AND FUNCTION('YEAR', l.leaveDate) = FUNCTION('YEAR', CURRENT_DATE) " +
 		       "AND l.studentId = :studentId " +
 		       "AND l.leaveDayType = 'Full Day' " +
 		       "AND l.leaveStatus = 1 " +
