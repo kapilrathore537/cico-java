@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -34,6 +35,7 @@ public class JobAlert {
 	private String experienceRequired;
 	private String technicalSkills;
 	private Boolean isActive;
+	@JoinColumn
 	@OneToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private  TechnologyStack technologyStack;
 	private String type;

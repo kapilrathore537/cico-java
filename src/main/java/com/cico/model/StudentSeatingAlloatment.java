@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class StudentSeatingAlloatment {
 	private Integer seatNumber;
 	private LocalDate seatAllocatedDate;
 	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn
 	private Student student;
 	
 }

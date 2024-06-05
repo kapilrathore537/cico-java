@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 import lombok.AllArgsConstructor;
@@ -29,8 +30,10 @@ public class ChapterExamResult {
 	private Integer notSelectedQuestions;
 
 	@OneToOne
+	@JoinColumn
 	private Chapter chapter;
 	@OneToOne
+	@JoinColumn
 	private Student student;
 	private Integer scoreGet;
 	public Integer totalQuestion;

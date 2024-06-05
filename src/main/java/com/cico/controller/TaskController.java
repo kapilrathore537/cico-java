@@ -92,7 +92,7 @@ public class TaskController {
 	public ResponseEntity<?> getSubmitedTaskForStudent(@RequestParam("studentId") Integer studentId ,
 			@RequestParam("pageSize") Integer pageSise,
 			@RequestParam("pageNumber") Integer pageNumber,
-			@RequestParam(value = "status", defaultValue = "Unreviewed")SubmissionStatus status) {
+			@RequestParam(value = "status", defaultValue = "NOT_CHECKED_WITH_IT")SubmissionStatus status) {
 		return taskService.getSubmitedTaskForStudent(studentId,pageNumber,pageSise,status);
 	}
 
