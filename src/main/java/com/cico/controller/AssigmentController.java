@@ -19,7 +19,6 @@ import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
 import com.cico.util.SubmissionStatus;
-import com.cloudinary.http44.api.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController

@@ -128,13 +128,27 @@
 			<version>2.11.0</version> <!-- Use the latest version available -->
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
-<dependency>
-    <groupId>com.cloudinary</groupId>
-    <artifactId>cloudinary-http44</artifactId>
-    <version>1.37.0</version>
-</dependency>
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.37.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.0.0</version> <!-- Check for the latest version -->
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -144,14 +158,14 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <jvmArguments>
-                    <jvmArgument>--add-opens=java.base/java.time=ALL-UNNAMED</jvmArgument>
-                </jvmArguments>
-            </configuration>
-        </plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>
+						<jvmArgument>--add-opens=java.base/java.time=ALL-UNNAMED</jvmArgument>
+					</jvmArguments>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>
