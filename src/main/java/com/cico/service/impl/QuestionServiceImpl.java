@@ -157,9 +157,10 @@ public class QuestionServiceImpl implements IQuestionService {
 						"Can't update the question exam are activated or question is already selected in subjecte exam");
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
+			
 			Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
 
-			if (Objects.nonNull(questionObj) && exam.get().getQuestions().contains(questionObj)) {
+			if (Objects.nonNull(questionObj) && exam.get().getQuestions().contains(questionObj) &&questionObj.getQuestionId() != question.getQuestionId()) {
 				throw new ResourceAlreadyExistException("Question already exist");
 			}
 		} else if (type == 2) {
