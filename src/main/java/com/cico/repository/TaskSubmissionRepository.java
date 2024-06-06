@@ -16,7 +16,7 @@ import com.cico.util.SubmissionStatus;
 public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, Long> {
 
 	@Query("SELECT NEW com.cico.model.TaskSubmission( ts.review, ts.status, ts.submissionDate, ts.submittionFileName, ts.taskDescription,t.taskName ) "
-			+ "FROM Task t JOIN t.assignmentSubmissions ts " + "WHERE ts.student.studentId = :studentId AND ( ts.status=:status OR :status ='Unreviewed' )"
+			+ "FROM Task t JOIN t.assignmentSubmissions ts " + "WHERE ts.student.studentId = :studentId AND ( ts.status=:status OR :status ='NOT_CHECKED_WITH_IT' )"
 			+ "ORDER BY ts.submissionDate DESC")
 	Page<TaskSubmission> getSubmitedTaskForStudent(@Param("studentId") Integer studentId, PageRequest pageRequest, SubmissionStatus status);
 

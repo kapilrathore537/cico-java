@@ -85,7 +85,7 @@ public class AssigmentController {
 	public ResponseEntity<?> getSubmitedAssignmetByStudentId(@RequestParam("studentId") Integer studentId
 			,@RequestParam( value ="pageSize") Integer pageSise,
 			@RequestParam(value ="pageNumber") Integer pageNumber,
-			@RequestParam(value = "status")SubmissionStatus status )  {
+			@RequestParam(value = "status",defaultValue = "NOT_CHECKED_WITH_IT")SubmissionStatus status )  {
 		return service.getSubmitedAssignmetByStudentId(studentId ,pageSise,pageNumber,status);
 	}
 

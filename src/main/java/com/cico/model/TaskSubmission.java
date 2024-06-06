@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 import com.cico.util.SubmissionStatus;
@@ -29,6 +30,7 @@ public class TaskSubmission {
 	private String submittionFileName;
 	@JsonBackReference
 	@OneToOne
+	@JoinColumn
 	private Student student;
 
 	// private Long taskId;

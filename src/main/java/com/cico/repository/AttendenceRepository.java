@@ -62,11 +62,12 @@ public interface AttendenceRepository extends JpaRepository<Attendance, Integer>
 	@Query("DELETE FROM Attendance a WHERE a.studentId=:id AND a.checkInDate=:now")
 	public void deleteAttendanceToday(@Param("id") Integer id, @Param("now") LocalDate now);
 
-	@Query("SELECT COUNT(a) FROM Attendance a WHERE  a.studentId=:studentId AND  MONTH(a.checkInDate) = MONTH(CURRENT_DATE) AND a.workingHour >= 32400 AND a.isMispunch = 0 ")
+	@Query("SELECT COUNT(a) FROM Attendance a WHERE  a.studentId=:studentId AND  MONTH(a.checkInDate) = MONTH(CURRENT_DATE) AND a.workingHour >= 32400 AND a.isMispunch = 0 AND YEAR(a.checkInDate) = YEAR(CURRENT_DATE) ")
 	public Long countPresentStudentsForCurrentMonth( @Param("studentId") Integer studentId);
 
 	@Query("SELECT COUNT(a) FROM Attendance a WHERE a.studentId = :studentId " +
 		       "AND FUNCTION('MONTH', a.checkInDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		       "AND FUNCTION('YEAR', a.checkInDate) = FUNCTION('YEAR', CURRENT_DATE) " +
 		       "AND a.isMispunch = 1")
 		public Long countTotalMishpunchForCurrentMonth(@Param("studentId") Integer studentId);
 
@@ -74,6 +75,7 @@ public interface AttendenceRepository extends JpaRepository<Attendance, Integer>
 	@Query("SELECT COUNT(a) FROM Attendance a " +
 		       "WHERE a.studentId = :studentId " +
 		       "AND FUNCTION('MONTH', a.checkInDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		       "AND FUNCTION('YEAR', a.checkInDate) = FUNCTION('YEAR', CURRENT_DATE) " +
 		       "AND a.workingHour < 32400 " +
 		       "AND a.isMispunch = 0 " +
 		       "GROUP BY FUNCTION('MONTH', a.checkInDate)")

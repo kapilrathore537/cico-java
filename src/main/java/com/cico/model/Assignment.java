@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -37,13 +38,16 @@ public class Assignment {
 
 	private String taskAttachment;
 
+	@JoinColumn
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<AssignmentTaskQuestion> AssignmentQuestion = new ArrayList<>();;
 
 	@OneToOne
+	@JoinColumn
 	private Course course;
 
 	@OneToOne
+	@JoinColumn
 	private Subject subject;
 
 	private Boolean isDeleted =false;

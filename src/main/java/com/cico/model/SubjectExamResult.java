@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +30,7 @@ public class SubjectExamResult extends ChapterExamResult {
 	private Integer subjectExamId;
 	@JsonIgnore
 	@OneToOne
+	@JoinColumn
 	private Subject subject;
 //	private Student student;
 //	private Integer scoreGet;
