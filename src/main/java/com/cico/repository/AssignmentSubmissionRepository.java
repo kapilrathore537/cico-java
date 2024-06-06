@@ -59,7 +59,7 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
 
 	@Query("SELECT NEW com.cico.payload.AssignmentSubmissionResponse(s.review, s.status, s.submissionDate, s.submitFile, s.description, a.title, s.submissionId,aq.taskNumber) "
 			+ "FROM Assignment a JOIN a.AssignmentQuestion aq ON aq.isDeleted = 0 " + "JOIN aq.assignmentSubmissions s "
-			+ "WHERE s.student.studentId = :studentId  AND (s.status=:status OR :status = 'Unreviewed') "
+			+ "WHERE s.student.studentId = :studentId  AND (s.status=:status ) "
 			+ "ORDER BY s.submissionDate DESC, FUNCTION('TIME_FORMAT', s.submissionDate, 'HH:mm:ss') DESC")
 	Page<AssignmentSubmissionResponse> getSubmitAssignmentByStudentId(@Param("studentId") Integer studentId,
 			PageRequest pageRequest, SubmissionStatus status);

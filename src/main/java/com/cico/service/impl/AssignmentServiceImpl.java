@@ -538,4 +538,29 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<?> deleteAttachment(Long assignmentId) {
+		Assignment assignment = assignmentRepository.findById(assignmentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+		assignment.setTaskAttachment("");
+		assignmentRepository.save(assignment);
+		return new ResponseEntity<>(HttpStatus.OK);
+
+	}
+
+	@Override
+	public ResponseEntity<?> addAttachment(Long assignmentId, MultipartFile file) {
+
+		Assignment assignment = assignmentRepository.findById(assignmentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+
+		if (file != null) {
+			String fileName = fileServiceImpl.uploadFileInFolder(file, AppConstants.ATTENDANCE_IMAGES);
+			assignment.setTaskAttachment(fileName);
+		}
+
+		assignmentRepository.save(assignment); 	
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 }
