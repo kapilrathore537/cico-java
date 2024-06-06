@@ -21,6 +21,7 @@ import com.cico.model.Student;
 import com.cico.payload.AnnouncementRequest;
 import com.cico.payload.AnnouncementResponseForAdmin;
 import com.cico.payload.AnnouncementStudentResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.PageResponse;
 import com.cico.repository.AnnouncementRepository;
 import com.cico.repository.CourseRepository;
@@ -39,6 +40,11 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 	@Autowired
 	private StudentRepository studentRepository;
 
+//	@Autowired
+//	private FirebaseNotificationService notificationService;
+	
+
+
 	@Override
 	public ResponseEntity<?> publishAnnouncement(AnnouncementRequest announcementRequest) {
 		List<Course> course = courseRepository.findBycourseIdInAndIsDeletedFalse(announcementRequest.getCourseId());
@@ -55,6 +61,11 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 		seenBy.setTotalStudents(totalStudents);
 		announcement.setSeenBy(seenBy);
 		Announcement save = announcementRepository.save(announcement);
+
+		// fetching all the fcmId
+		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(course);
+		
+
 		return new ResponseEntity<>(announcementFilter(save), HttpStatus.CREATED);
 	}
 
@@ -73,12 +84,13 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		} else {
-	//		List<AnnouncementResponseForAdmin> collect = announcementRepository.findAll().stream()
-		//			.map(obj -> (announcementFilterForAdmin(obj))).sort((o1,o2)->o1.getDate().compareTo(o2.getDate()).collect(Collectors.toList()));
+			// List<AnnouncementResponseForAdmin> collect =
+			// announcementRepository.findAll().stream()
+			// .map(obj ->
+			// (announcementFilterForAdmin(obj))).sort((o1,o2)->o1.getDate().compareTo(o2.getDate()).collect(Collectors.toList()));
 			List<AnnouncementResponseForAdmin> collect = announcementRepository.findAll().stream()
-				    .map(obj -> announcementFilterForAdmin(obj))
-				    .sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate()))
-				    .collect(Collectors.toList());
+					.map(obj -> announcementFilterForAdmin(obj))
+					.sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate())).collect(Collectors.toList());
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		}
 	}
