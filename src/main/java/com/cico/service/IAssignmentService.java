@@ -56,6 +56,10 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAllSubmittedAssignmentTask(Long assignmentId);
 
+	ResponseEntity<?> deleteAttachment(Long assignmentId);
+
+	ResponseEntity<?> addAttachment(Long assignmentId, MultipartFile file);
+
 	
 
 }

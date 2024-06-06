@@ -19,6 +19,7 @@ import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
 import com.cico.util.SubmissionStatus;
+import com.cloudinary.http44.api.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -84,7 +85,7 @@ public class AssigmentController {
 	public ResponseEntity<?> getSubmitedAssignmetByStudentId(@RequestParam("studentId") Integer studentId
 			,@RequestParam( value ="pageSize") Integer pageSise,
 			@RequestParam(value ="pageNumber") Integer pageNumber,
-			@RequestParam(value = "status",defaultValue = "Unreviewed")SubmissionStatus status )  {
+			@RequestParam(value = "status",defaultValue = "NOT_CHECKED_WITH_IT")SubmissionStatus status )  {
 		return service.getSubmitedAssignmetByStudentId(studentId ,pageSise,pageNumber,status);
 	}
 
@@ -150,6 +151,18 @@ public class AssigmentController {
 	@GetMapping("/getAllSubmittedAssignmentTask")
 	public ResponseEntity<?>getAllSubmittedAssignmentTask(@RequestParam("assignmentId")Long assignmentId){
 		return service.getAllSubmittedAssignmentTask(assignmentId);
+	}
+	
+	
+	@DeleteMapping("/deleteAttachment")
+	public ResponseEntity<?>deleteAttachment(@RequestParam("assignmentId")Long assignmentId){
+		return service.deleteAttachment(assignmentId);
+	}
+	
+	
+	@PostMapping("/addAttachment")
+	public ResponseEntity<?>addAttachment(@RequestParam("assignmentId")Long assignmentId,@RequestParam(value = "file" ,required =  false)MultipartFile file){
+		return service.addAttachment(assignmentId,file);
 	}
 	
 }

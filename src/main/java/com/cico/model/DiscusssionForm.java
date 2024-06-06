@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -31,9 +32,12 @@ public class DiscusssionForm {
 	private String audioFile;
 	private String file;
 	@OneToOne
+	@JoinColumn
 	private Student student;
 	@OneToMany
+	@JoinColumn
 	private List<DiscussionFormComment>comments = new ArrayList<>();
 	@OneToMany
+	@JoinColumn
 	private List<Likes>likes;
 }
