@@ -1,5 +1,7 @@
 package com.cico.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +26,6 @@ import com.cico.repository.BatchRepository;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
-import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
 import com.cico.util.AppConstants;
 
@@ -162,7 +163,8 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public List<Batch> getUpcomingBatches() {
-		List<Batch> batches = batchRepository.findAllByBatchStartDate();
+		System.err.println(LocalDate.now());
+		List<Batch> batches = batchRepository.findAllByBatchStartDate(LocalDate.now());
 		if (batches.isEmpty())
 			throw new ResourceNotFoundException(BATCH_NOT_FOUND);
 
