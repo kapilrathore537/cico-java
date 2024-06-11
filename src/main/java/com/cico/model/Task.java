@@ -37,7 +37,7 @@ public class Task {
 	private List<TaskQuestion> TaskQuestion = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn
+	@JoinColumn(columnDefinition = "task_id")
 	private List<TaskSubmission> assignmentSubmissions;
 
 	@OneToOne

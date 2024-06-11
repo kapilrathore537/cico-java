@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
@@ -30,6 +31,7 @@ import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.payload.AssignmentSubmissionResponse;
 import com.cico.payload.AssignmentTaskFilterReponse;
 import com.cico.payload.CourseResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.SubjectResponse;
 import com.cico.payload.TaskQuestionResponse;
 import com.cico.payload.TaskStatusSummary;
@@ -41,6 +43,7 @@ import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.service.IAssignmentService;
 import com.cico.util.AppConstants;
+import com.cico.util.NotificationConstant;
 import com.cico.util.SubmissionStatus;
 
 @Service
@@ -66,6 +69,9 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Autowired
 	private AssignmentSubmissionRepository submissionRepository;
+
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
 
 	public Assignment checkIsPresent(Long id) {
 		return assignmentRepository.findByIdAndIsDeleted(id, false)
@@ -97,11 +103,29 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				assignment.setSubject(subjectRepo.findById(assignmentRequest.getSubjectId()).get());
 
 			assignment.setCreatedDate(LocalDateTime.now());
-			assignment.setIsDeleted(false);
 			Assignment savedAssignment = assignmentRepository.save(assignment);
-			// savedAssignment = getAssignmentTemp(savedAssignment);
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			response.put("assignmentId", savedAssignment.getId());
+
+			// .... firebase notification ....//
+
+			// fetching all the fcmId
+			// sending message via kafka to firebase PUSH NOTIFICATION
+			List<NotificationInfo> fcmIds = studentRepository
+					.findAllFcmIdByCourseId(assignment.getCourse().getCourseId());
+
+			String message = String.format("A new assignment (%) has been assigned. Please review and get started.",
+					savedAssignment.getTitle());
+
+			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
+				obj1.setMessage(message);
+				return obj1;
+			}).toList();
+
+			kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
+
+			// .... firebase notification ....//
+
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		} else {
 			throw new ResourceAlreadyExistException("Assignmnet Already Present With This Title");
@@ -138,7 +162,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) ////
 	{
-
 		Optional<AssignmentTaskQuestion> obj = assignmentTaskQuestionRepository.findByQuestionId(readValue.getTaskId());
 		boolean anyMatch = obj.get().getAssignmentSubmissions().parallelStream()
 				.anyMatch(obj2 -> obj2.getStudent().getStudentId() == readValue.getStudentId());
@@ -156,6 +179,15 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			AssignmentSubmission save = submissionRepository.save(submission);
 			obj.get().getAssignmentSubmissions().add(save);
 			assignmentTaskQuestionRepository.save(obj.get());
+
+			// .....firebase notification .....//
+
+			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(readValue.getStudentId());
+			String message = String.format("Your assignment has been successfully submitted. Thank you!");
+			fcmIds.setMessage(message);
+			fcmIds.setTitle("Submission updates!");
+			kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+			// .....firebase notification .....//
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		} else {
 			throw new ResourceAlreadyExistException("ALREADY THIS ASSIGNMENT TASK SUBMITED!!");
@@ -178,7 +210,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return new ResponseEntity<>(assignmentRepository.findAllAssignmentSubmissionWithCourseIdAndSubjectId(courseId,
 				subjectId, status, PageRequest.of(pageNumber, pageSize)), HttpStatus.OK);
 	}
-
+ 
 	@Override
 	public ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId, String status, String review) {
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
@@ -362,9 +394,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		}).collect(Collectors.toList());
 		response.put("unLockedAssignment", assignmentFilterResponses);
 		response.put("lockedAssignment", lockedAssignment.size());
-		// Page<?> convertListToPage =
-		// AppUtils.convertListToPage(assignmentFilterResponses,PageRequest.of(pageNumber,pageSize));
-
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -559,7 +588,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignment.setTaskAttachment(fileName);
 		}
 
-		assignmentRepository.save(assignment); 	
+		assignmentRepository.save(assignment);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

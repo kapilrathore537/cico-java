@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceAlreadyExistException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Announcement;
 import com.cico.model.Course;
 import com.cico.model.MessageSeenBy;
@@ -27,6 +28,7 @@ import com.cico.repository.AnnouncementRepository;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.service.IAnnouncementService;
+import com.cico.util.NotificationConstant;
 
 @Service
 public class AnnouncementServiceImpl implements IAnnouncementService {
@@ -40,18 +42,16 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 	@Autowired
 	private StudentRepository studentRepository;
 
-//	@Autowired
-//	private FirebaseNotificationService notificationService;
-	
-
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
 
 	@Override
 	public ResponseEntity<?> publishAnnouncement(AnnouncementRequest announcementRequest) {
-		List<Course> course = courseRepository.findBycourseIdInAndIsDeletedFalse(announcementRequest.getCourseId());
+		List<Course> courses = courseRepository.findBycourseIdInAndIsDeletedFalse(announcementRequest.getCourseId());
 		long totalStudents = studentRepository
 				.findBycourseIdInAndIsActiveTrueAndIsCompletedFalse(announcementRequest.getCourseId());
 		Announcement announcement = new Announcement();
-		announcement.setCourse(course);
+		announcement.setCourse(courses);
 		announcement.setDate(LocalDateTime.now());
 		announcement.setMessage(announcementRequest.getMessage());
 		announcement.setTitle(announcementRequest.getTitle());
@@ -63,9 +63,9 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 		Announcement save = announcementRepository.save(announcement);
 
 		// fetching all the fcmId
-		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(course);
-		
-
+		// sending message via kafka to firebase
+		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseIds(courses);
+		kafkaProducerService.sendNotification(NotificationConstant.ANNOUNCEMENT_TOPIC, fcmIds.toString());
 		return new ResponseEntity<>(announcementFilter(save), HttpStatus.CREATED);
 	}
 
@@ -80,17 +80,13 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 					announcements.getTotalPages(), announcements.isLast());
 
 			List<AnnouncementResponseForAdmin> collect = pageResponse.getResponse().stream()
-					.map(obj -> (announcementFilterForAdmin(obj))).collect(Collectors.toList());
+					.map(this::announcementFilterForAdmin).toList();
 
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		} else {
-			// List<AnnouncementResponseForAdmin> collect =
-			// announcementRepository.findAll().stream()
-			// .map(obj ->
-			// (announcementFilterForAdmin(obj))).sort((o1,o2)->o1.getDate().compareTo(o2.getDate()).collect(Collectors.toList()));
 			List<AnnouncementResponseForAdmin> collect = announcementRepository.findAll().stream()
-					.map(obj -> announcementFilterForAdmin(obj))
-					.sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate())).collect(Collectors.toList());
+					.map(this::announcementFilterForAdmin).sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate()))
+					.toList();
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		}
 	}
@@ -115,8 +111,8 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 		Student student = studentRepository.findById(studentId).get();
 
 		List<AnnouncementStudentResponse> collect = announcementRepository
-				.getAnnouncementForStudentByCourse(student.getCourse(), student).stream()
-				.map(obj -> (announcementFilter(obj))).collect(Collectors.toList());
+				.getAnnouncementForStudentByCourse(student.getCourse(), student).stream().map(this::announcementFilter)
+				.toList();
 
 		return new ResponseEntity<>(collect, HttpStatus.OK);
 	}

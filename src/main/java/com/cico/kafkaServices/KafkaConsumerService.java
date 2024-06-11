@@ -1,4 +1,4 @@
-package com.cico.service.impl;
+package com.cico.kafkaServices;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +8,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import com.cico.model.FirebaseNotificationMessage;
 import com.cico.payload.NotificationInfo;
+import com.cico.util.NotificationConstant;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,34 +21,9 @@ public class KafkaConsumerService {
 	@Autowired
 	private FirebaseNotificationService notificationService;
 
-	// Annoucement constant
-	private final String NOTIFICATION_GROUP_ID = "notification_group";
-	private final String ANNOUNCEMENT_NOTIFICATION_MESSAGE = "New announcement";
-	private final String ANNOUNCEMENT_TOPIC = "annoucement";
-	private final String ANNOUCEMENT_TITLE = "Announcement";
-
-	// Createt task constant
-	private final String TASK_TITLE = "New task assign";
-	private final String NEW_TASK_GROUP_ID = "task_gorup";
-	private final String TASK_TOPIC = "task";
-	private final String TASK_NOTIFICATION_MESSAGE = "task";
-
-	// Task status constant
-	private final String TASK_ACCPETED_STATUS_TITLE = "Task Accepted";
-	private final String TASK_REJECTED_STATUS_TITLE = "Task Rejected";
-	private final String TASK_REVIEWING_STATUS_TITLE = "Task Reviewing";
-	private final String TASK_STATUS_GROUP_ID = "task_statis_gorup";
-	private final String TASK_STATUS_TOPIC = "task_status";
-	private final String TASK_STATUS_NOTIFICATION_MESSAGE = "task";
-
-	// Create assignment status constant
-	private final String ASSIGNMENT_TITLE = "New task assign";
-	private final String ASSIGNMENT_GROUP_ID = "task_gorup";
-	private final String ASSIGNMENT_TOPIC = "task";
-	private final String ASSIGNMENT_NOTIFICATION_MESSAGE = "task";
-
 	// sending announcement notification for all the specific course students
-	@KafkaListener(topics = ANNOUNCEMENT_TOPIC, groupId = NOTIFICATION_GROUP_ID)
+	
+	@KafkaListener(topics = NotificationConstant.ANNOUNCEMENT_TOPIC, groupId = NotificationConstant.NOTIFICATION_GROUP_ID)
 	public void recieveNotification(String notification) throws JsonMappingException, JsonProcessingException {
 
 		List<NotificationInfo> notificationInfo = Arrays
@@ -55,34 +31,35 @@ public class KafkaConsumerService {
 
 		notificationInfo.forEach(obj -> {
 			FirebaseNotificationMessage message = new FirebaseNotificationMessage();
-			message.setBody(ANNOUNCEMENT_NOTIFICATION_MESSAGE);
+			message.setBody(NotificationConstant.ANNOUNCEMENT_NOTIFICATION_MESSAGE);
 			message.setImage("");
 			message.setRecipientToken(obj.getFcmId());
-			message.setTitle(ANNOUCEMENT_TITLE);
-
+			message.setTitle(NotificationConstant.ANNOUCEMENT_TITLE);
 			notificationService.sendFBNotificationByToken(message);
 		});
 	}
 
-	// Sending create task notification to all the student of specific course
-	@KafkaListener(topics = TASK_TOPIC, groupId = NEW_TASK_GROUP_ID)
+	// Sending create task notification to all the studenst of specific course
+	
+	@KafkaListener(topics = NotificationConstant.TASK_TOPIC, groupId = NotificationConstant.TASK_GROUP_ID)
 	public void recieveTaskNotification(String notification) throws JsonMappingException, JsonProcessingException {
 		List<NotificationInfo> notificationInfo = Arrays
 				.asList(mapper.readValue(notification, NotificationInfo[].class));
 
 		notificationInfo.forEach(obj -> {
 			FirebaseNotificationMessage message = new FirebaseNotificationMessage();
-			message.setBody(TASK_NOTIFICATION_MESSAGE);
+			message.setBody(obj.getMessage());
 			message.setImage("");
 			message.setRecipientToken(obj.getFcmId());
-			message.setTitle(TASK_TITLE);
+			message.setTitle(NotificationConstant.TASK_TITLE);
 
 			notificationService.sendFBNotificationByToken(message);
 		});
 	}
 
 	// Sending create assignment notification to all the student of specific course
-	@KafkaListener(topics = ASSIGNMENT_TOPIC, groupId = ASSIGNMENT_GROUP_ID)
+	
+	@KafkaListener(topics = NotificationConstant.ASSIGNMENT_TOPIC, groupId = NotificationConstant.ASSIGNMENT_GROUP_ID)
 	public void recieveAssginmentNotification(String notification)
 			throws JsonMappingException, JsonProcessingException {
 		List<NotificationInfo> notificationInfo = Arrays
@@ -90,10 +67,10 @@ public class KafkaConsumerService {
 
 		notificationInfo.forEach(obj -> {
 			FirebaseNotificationMessage message = new FirebaseNotificationMessage();
-			message.setBody(ASSIGNMENT_NOTIFICATION_MESSAGE);
+			message.setBody(NotificationConstant.ASSIGNMENT_NOTIFICATION_MESSAGE);
 			message.setImage("");
 			message.setRecipientToken(obj.getFcmId());
-			message.setTitle(ASSIGNMENT_TITLE);
+			message.setTitle(NotificationConstant.ASSIGNMENT_TITLE);
 
 			notificationService.sendFBNotificationByToken(message);
 		});
@@ -101,19 +78,38 @@ public class KafkaConsumerService {
 
 	// sending task status to specific student for submission task status
 	// status accepted ,rejected,Reviewing
-	@KafkaListener(topics = TASK_STATUS_TOPIC, groupId = TASK_STATUS_GROUP_ID)
+	
+	@KafkaListener(topics = NotificationConstant.TASK_STATUS_TOPIC, groupId = NotificationConstant.TASK_STATUS_GROUP_ID)
 	public void recieveTaskStatusNotification(String notification)
 			throws JsonMappingException, JsonProcessingException {
 		NotificationInfo notificationInfo = mapper.readValue(notification, NotificationInfo.class);
 
 		FirebaseNotificationMessage message = new FirebaseNotificationMessage();
-		message.setBody(TASK_STATUS_NOTIFICATION_MESSAGE);
+		message.setBody(notificationInfo.getMessage());
 		message.setImage("");
 		message.setRecipientToken(notificationInfo.getFcmId());
-		message.setTitle("");
+		message.setTitle("Task updates!");
 
 		notificationService.sendFBNotificationByToken(message);
+	}
 
+	//.......................................................................................... COMMON METHOD ...............................................................................................//
+	 
+	// Common Method for task,assignment submission ,and chapter and subject exam
+	// completion
+	// sending submission updates to specific
+	
+	@KafkaListener(topics = NotificationConstant.COMMON_TOPIC, groupId = NotificationConstant.COMMON_GROUP_ID)
+	public void recieveTaskAssignmentSubmissionNotification(String notification)
+			throws JsonMappingException, JsonProcessingException {
+		NotificationInfo notificationInfo = mapper.readValue(notification, NotificationInfo.class);
+
+		FirebaseNotificationMessage message = new FirebaseNotificationMessage();
+		message.setBody(notificationInfo.getMessage());
+		message.setImage("");
+		message.setRecipientToken(notificationInfo.getFcmId());
+		message.setTitle(notificationInfo.getTitle());
+		notificationService.sendFBNotificationByToken(message);
 	}
 
 }

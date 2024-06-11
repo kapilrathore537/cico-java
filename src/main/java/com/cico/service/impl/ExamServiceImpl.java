@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterCompleted;
 import com.cico.model.ChapterExamResult;
@@ -33,6 +34,7 @@ import com.cico.payload.AddExamRequest;
 import com.cico.payload.ChapterExamResultResponse;
 import com.cico.payload.ExamRequest;
 import com.cico.payload.ExamResultResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.QuestionResponse;
 import com.cico.payload.SubjectExamResponse;
 import com.cico.repository.ChapterCompletedRepository;
@@ -46,6 +48,7 @@ import com.cico.repository.SubjectRepository;
 import com.cico.service.IExamService;
 import com.cico.util.AppConstants;
 import com.cico.util.ExamType;
+import com.cico.util.NotificationConstant;
 
 @Service
 public class ExamServiceImpl implements IExamService {
@@ -76,6 +79,9 @@ public class ExamServiceImpl implements IExamService {
 
 	@Autowired
 	private SubjectServiceImpl subjectServiceImpl;
+
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
 
 	@Override
 	public ResponseEntity<?> addChapterExamResult(ExamRequest chapterExamResult) {
@@ -132,6 +138,15 @@ public class ExamServiceImpl implements IExamService {
 		res.setScoreGet(save.getScoreGet());
 		res.setWrongQuestions(save.getWrongQuestions());
 		res.setId(save.getId());
+
+		// .....firebase notification .....//
+
+		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(student.getStudentId());
+		String message = String.format("Congratulations! You have successfully completed your exam. Well done!");
+		fcmIds.setMessage(message);
+		fcmIds.setTitle("Exam Completed!");
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
 
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
@@ -217,6 +232,15 @@ public class ExamServiceImpl implements IExamService {
 		res.setScoreGet(save.getScoreGet());
 		res.setWrongQuestions(save.getWrongQuestions());
 		res.setId(save.getId());
+
+		// .....firebase notification .....//
+
+		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(student.getStudentId());
+		String message = String.format("Congratulations! You have successfully completed your exam. Well done!");
+		fcmIds.setMessage(message);
+		fcmIds.setTitle("Exam Completed!");
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
 
 		return new ResponseEntity<>(res, HttpStatus.OK);
 
@@ -652,6 +676,21 @@ public class ExamServiceImpl implements IExamService {
 		if (!exam.getIsStart()) {
 			exam.setIsActive(!exam.getIsActive());
 			subjectExamRepo.save(exam);
+
+			// .....firebase notification .....//
+
+			List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByExamId(examId);
+			String message = String
+					.format("An exam has been scheduled. Please check the details and prepare accordingly.");
+
+			List<NotificationInfo> newlist = fcmIds.parallelStream().map(obj -> {
+				obj.setMessage(message);
+				obj.setTitle("Exam Scheduled!");
+				return obj;
+			}).toList();
+			kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, newlist.toString());
+
+			// .....firebase notification .....//
 
 			response.put("isActive", exam.getIsActive());
 			return new ResponseEntity<>(response, HttpStatus.OK);

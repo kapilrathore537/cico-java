@@ -1,4 +1,4 @@
-package com.cico.service.impl;
+package com.cico.kafkaServices;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,9 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class FirebaseNotificationService {
 
 	@Autowired
@@ -37,24 +40,21 @@ public class FirebaseNotificationService {
 			value = mapper.writeValueAsString(data);
 			outerData.putAll(data);
 			value = mapper.writeValueAsString(outerData);
-			System.out.println(value);
+
+			log.info("FIREBASS VALUES  ----> " + value);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-
 		Message message = Message.builder().setToken(notificationMessage.getRecipientToken()).putData("data", value)
 				.setNotification(notification).build();
-
 		try {
-			System.out.println("Message---->>>>" + message.toString());
+			log.info("Message---->>>>" + message.toString());
 			officerFirebaseMessaging.send(message);
-
 			return new ResponseEntity<>(NOTIFICATION_SENT_SUCCESS, HttpStatus.OK);
 		} catch (FirebaseMessagingException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(NOTIFICATION_SENT_FAILED, HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-	
+
 }

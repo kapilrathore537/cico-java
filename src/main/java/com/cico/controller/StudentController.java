@@ -289,7 +289,7 @@ public class StudentController {
 	public ResponseEntity<?> allStudent() {
 		return studentService.allStudent();
 	}
-	
+
 	@GetMapping("/allFeesRemainingStudent")
 	public ResponseEntity<?> allFeesRemainingStudent() {
 		return studentService.allFeesRemainingStudent();
@@ -309,6 +309,12 @@ public class StudentController {
 	public ResponseEntity<?> totalAttendaceAndLeaveDataOfStudentAfterJoining(@RequestParam("id") Integer studentId) {
 		return new ResponseEntity<>(studentService.currentMonthAttendenceForDashBoard(studentId, "CURRENT_YEAR"),
 				HttpStatus.OK);
+	}
+
+	@PutMapping("/updateFcmId")
+	public ResponseEntity<?> updateFcmId(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+			@RequestParam("fcmId") String fcmId) {
+		return studentService.updateFcmId(header, fcmId);
 	}
 
 }
