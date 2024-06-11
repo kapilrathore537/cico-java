@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.cico.model.Course;
 import com.cico.model.Student;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.StudentReponseForWeb;
 import com.cico.payload.TodayLeavesRequestResponse;
@@ -99,4 +100,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	@Query("SELECT NEW com.cico.payload.StudentReponseForWeb(s.fullName,s.studentId) FROM Student s WHERE s NOT IN (SELECT f.student FROM Fees f )")
 	List<StudentReponseForWeb> allFeesRemainingStudent();
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.course =course")
+	List<NotificationInfo> findAllFcmIdByCourseId(List<Course> course);
 }
