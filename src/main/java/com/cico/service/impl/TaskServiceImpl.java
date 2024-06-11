@@ -157,7 +157,8 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public List<Task> getAllTask() {
-//		List<Task> list = taskRepo.findAll();
+		List<Task> list = taskRepo.findAll();
+//		System.err.println(list.toString()+"cxvdsvdvsv");
 //		if (list.isEmpty())
 //			throw new ResourceNotFoundException("Task not Found");
 //		else

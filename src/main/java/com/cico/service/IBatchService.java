@@ -1,6 +1,7 @@
 package com.cico.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cico.model.Batch;
 import com.cico.payload.ApiResponse;
@@ -24,5 +25,7 @@ public interface IBatchService {
 	ApiResponse createBatch(BatchRequest request);
 
 	ApiResponse updateBatch(Batch batch);
+	
+	Batch getFirstUpcomingBatchOfCurrentCourse(String course);
 
 }

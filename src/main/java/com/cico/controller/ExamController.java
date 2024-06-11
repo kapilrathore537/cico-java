@@ -172,4 +172,9 @@ public class ExamController {
 		return examService.getChapterExam(chapterId);
 	}
 
+	 
+	@GetMapping("/getSubjectExamCount")
+	public ResponseEntity<?>getSubjectExamCount(@RequestParam("studentId")Integer studentId){
+		return examService.getSubjectExamCount(studentId);
+	}
 }
