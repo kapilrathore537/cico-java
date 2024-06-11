@@ -21,7 +21,7 @@ import com.cico.payload.JobAlertResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.IJobAlertService;
 import com.cico.util.AppConstants;
-
+import com.cico.util.JobType;
 
 @RestController
 @RequestMapping("/job")
@@ -35,7 +35,7 @@ public class JobAlertController {
 	public ResponseEntity<ApiResponse> createJob(@RequestParam("jobTitle") String jobTitle,
 			@RequestParam("technologyStackId") Integer technologyStackId,
 			@RequestParam("jobDescription") String jobDescription, @RequestParam("companyName") String companyName,
-			@RequestParam("experienceRequired") String experienceRequired, @RequestParam("type") String type,
+			@RequestParam("experienceRequired") String experienceRequired, @RequestParam("type") JobType type,
 			@RequestParam("jobPackage") String jobPackage, @RequestParam("technicalSkills") String technicalSkills) {
 		JobAlert createJob = service.createJob(technologyStackId, jobTitle, jobDescription, companyName,
 				experienceRequired, technicalSkills, type, jobPackage);
@@ -67,31 +67,23 @@ public class JobAlertController {
 
 	@PutMapping("/updateAlertJobApi")
 	public ResponseEntity<ApiResponse> updatejob(@RequestBody JobAlert jobAlert) {
-		 ApiResponse update = service.update(jobAlert);
-		 return ResponseEntity.status(HttpStatus.CREATED).body(update);
+		ApiResponse update = service.update(jobAlert);
+		return ResponseEntity.status(HttpStatus.CREATED).body(update);
 	}
 
 	@DeleteMapping("/deleteJobApi")
 	public ResponseEntity<ApiResponse> delete(@RequestParam("jobId") Integer jobId) {
 		service.delete(jobId);
 
-
-		return new ResponseEntity<ApiResponse>(new ApiResponse(Boolean.TRUE, AppConstants.DELETE_SUCCESS, HttpStatus.OK),
-				HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(
+				new ApiResponse(Boolean.TRUE, AppConstants.DELETE_SUCCESS, HttpStatus.OK), HttpStatus.OK);
 	}
-
-//	@GetMapping("/getAllJobsApi")
-//	public ResponseEntity<JobAlert> getAllJobs(@RequestParam("page") Integer page, @RequestParam("size") Integer size,
-//			@RequestParam("type") String type) {
-//		Map<String, Object> allJobs = service.getAllJobs(page, size, type);
-//		return new ResponseEntity<>(allJobs,HttpStatus.OK);
-//	}
 
 	@GetMapping("/getAllJobsApi")
 	public PageResponse<JobAlertResponse> getAllJobs(
 			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
-			@RequestParam("type") String type) {
+			@RequestParam("type") JobType type) {
 
 		return service.getAllJobAlert(page, size, type);
 	}

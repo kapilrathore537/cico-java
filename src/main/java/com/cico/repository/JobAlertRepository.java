@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.cico.model.JobAlert;
+import com.cico.util.JobType;
 
 @Repository
 public interface JobAlertRepository extends JpaRepository<JobAlert, Integer> {
@@ -29,7 +30,7 @@ public interface JobAlertRepository extends JpaRepository<JobAlert, Integer> {
 
 	Optional<JobAlert> findByJobIdAndIsDeletedAndIsActive(Integer id, Boolean isDeleted, Boolean isActive);
 
-	Page<JobAlert> findAllByTypeAndIsDeletedAndIsActive(String type,  boolean isDeleted,
+	Page<JobAlert> findAllByTypeAndIsDeletedAndIsActive(JobType type,  boolean isDeleted,
 			boolean isActive,Pageable pageable);
 
 	Page<JobAlert> findAllByIsDeleted (boolean isDeleted,Pageable pageable);

@@ -1,3 +1,4 @@
+
 package com.cico.service.impl;
 
 import java.time.DayOfWeek;
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Attendance;
 import com.cico.model.CounsellingInterview;
 import com.cico.model.Course;
@@ -53,6 +55,7 @@ import com.cico.payload.CourseResponse;
 import com.cico.payload.DashboardResponse;
 import com.cico.payload.MispunchResponse;
 import com.cico.payload.MockResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
@@ -65,7 +68,6 @@ import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
 import com.cico.repository.CounsellingRepo;
 import com.cico.repository.CourseRepository;
-import com.cico.repository.FeesRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.MockRepo;
 import com.cico.repository.OrganizationInfoRepository;
@@ -75,10 +77,10 @@ import com.cico.repository.StudentSeatingAlloatmentRepo;
 import com.cico.repository.StudentWorkReportRepository;
 import com.cico.security.JwtUtil;
 import com.cico.service.IFileService;
-import com.cico.service.IQRService;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 import com.cico.util.HelperService;
+import com.cico.util.NotificationConstant;
 import com.cico.util.Roles;
 
 @Service
@@ -90,9 +92,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private StudentRepository studRepo;
-
-	@Autowired
-	private FeesRepository feesRepo;
 
 	@Autowired
 	private CourseRepository courseRepository;
@@ -121,12 +120,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private ModelMapper mapper;
 
-//	@Value("${fileUploadPath}")
-//	private String IMG_UPLOAD_DIR;
-//
-//	@Value("${workReportUploadPath}")
-//	private String WORK_UPLOAD_DIR;
-
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
@@ -137,13 +130,13 @@ public class StudentServiceImpl implements IStudentService {
 	private StudentSeatingAlloatmentRepo studentSeatingAlloatmentRepo;
 
 	@Autowired
-	private IQRService qrService;
-
-	@Autowired
 	private MockRepo mockRepo;
 
 	@Autowired
 	private CounsellingRepo counsellingRepo;
+
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -266,7 +259,8 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> registerStudent(Student student) {
 
-		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail().trim(), student.getMobile().trim());
+		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail().trim(),
+				student.getMobile().trim());
 		if (!findByEmailAndMobile.isPresent()) {
 			Optional<Course> course = courseRepository.findByCourseId(student.getCourse().getCourseId());
 			student.setCourse(course.get());
@@ -1312,6 +1306,19 @@ public class StudentServiceImpl implements IStudentService {
 		} else if (leaveStatus.equals("deny")) {
 			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2, leaveId);
 		}
+
+		// .....firebase notification .....//
+		NotificationInfo fcmIds = studRepo.findFcmIdByStudentId(studentId);
+
+		String message = String
+				.format(leaveStatus.equals("approve") ? "Your leave request has been approved. Enjoy your time off!"
+						: "Your leave request has been denied. Reach out to the admin if you have any questions.");
+		fcmIds.setMessage(message);
+		fcmIds.setTitle(leaveStatus.equals("approve") ? "Leave Approved!" : "Leave Request Denied");
+
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
+
 		return (updateStudentLeaves != 0) ? true : false;
 	}
 
@@ -1326,13 +1333,6 @@ public class StudentServiceImpl implements IStudentService {
 			return new PageResponse<>(Collections.emptyList(), student.getNumber(), student.getSize(),
 					student.getTotalElements(), student.getTotalPages(), student.isLast());
 		}
-
-		// List<StudentResponse> asList = Arrays.asList(mapper.map(student.getContent(),
-		// StudentResponse[].class));
-
-		// List<StudentReponseForWeb> collect = student.getContent().stream().map(obj ->
-		// studentFilter(obj))
-		// .collect(Collectors.toList());
 
 		for (Object[] row : student.getContent()) {
 
@@ -1402,7 +1402,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> updateStudent(Student student) {
-		
+
 		StudentResponse studentResponse = new StudentResponse();
 
 		Student studentData = studRepo.findByUserIdAndIsActive(student.getUserId(), true).get();
@@ -1950,11 +1950,32 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> allFeesRemainingStudent() {
-		
-		 List<StudentReponseForWeb> students = studRepo.allFeesRemainingStudent();
-		 
-		 return new ResponseEntity<>(students,HttpStatus.OK);
 
+		List<StudentReponseForWeb> students = studRepo.allFeesRemainingStudent();
+
+		return new ResponseEntity<>(students, HttpStatus.OK);
+
+	}
+
+	@Override
+	public ResponseEntity<?> updateFcmId(HttpHeaders header, String fcmId) {
+
+		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
+		Integer studentId = Integer.parseInt(
+				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
+		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
+		Boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
+
+		Map<String, Object> map = new HashMap<>();
+
+		if (validateToken) {
+			studRepo.updateFcmId(fcmId, studentId);
+			map.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
+			return new ResponseEntity<>(map, HttpStatus.OK);
+		} else
+			map.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
 }
