@@ -122,4 +122,6 @@ public class AppConstants {
 
 	public static final String NEW_TASK_ADDED_SUCCESSFULLY = "New t	ask added successfully!!";
 
+	public static final long EXTRA_EXAM_TIME = 2;
+
 }
