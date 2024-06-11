@@ -161,7 +161,6 @@ public class ExamServiceImpl implements IExamService {
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.EXAM_NOT_FOUND));
 
 		if (subjectExam.getExamType() == ExamType.SCHEDULEEXAM) {
-
 			LocalDateTime scheduledDateTime = LocalDateTime.of(subjectExam.getScheduleTestDate(),
 					subjectExam.getExamStartTime());
 			LocalDateTime examEndTime = scheduledDateTime.plus(subjectExam.getExamTimer() + 1, ChronoUnit.MINUTES);
@@ -212,6 +211,7 @@ public class ExamServiceImpl implements IExamService {
 				}
 			}
 		}
+
 		examResult.setSubject(subject);
 		examResult.setSubjectExamId(request.getExamId());
 		examResult.setRandomQuestoinList(request.getQuestionList());
@@ -649,7 +649,7 @@ public class ExamServiceImpl implements IExamService {
 		allSubjectExam.stream().forEach(obj -> {
 			if (obj.getExamType().equals(ExamType.SCHEDULEEXAM)) {
 				LocalDateTime scheduledDateTime = LocalDateTime.of(obj.getScheduleTestDate(), obj.getExamStartTime());
-				LocalDateTime examEndTime = scheduledDateTime.plus(2, ChronoUnit.MINUTES);
+				LocalDateTime examEndTime = scheduledDateTime.plus(AppConstants.EXTRA_EXAM_TIME, ChronoUnit.MINUTES);
 				LocalDateTime now = LocalDateTime.now();
 
 				if (now.isBefore(examEndTime)) {
@@ -780,6 +780,21 @@ public class ExamServiceImpl implements IExamService {
 		questionResponse.setQuestionContent(question.getQuestionContent());
 		questionResponse.setQuestionImage(question.getQuestionImage());
 		return questionResponse;
+	}
+
+	@Override
+	public ResponseEntity<?> getSubjectExamCount(Integer studentId) {
+
+		Map<String, Object> response = new HashMap<>();
+		Long normalExamCount = subjectExamRepo.fetchSubjectExamCount(ExamType.NORMALEXAM, studentId);
+		Long scheduleExamCount = subjectExamRepo.fetchSubjectExamCount(ExamType.SCHEDULEEXAM, studentId);
+		Long totalNormalExamCount = subjectExamRepo.fetchTotalExamCount(studentId,ExamType.NORMALEXAM);
+		Long totalScheduleExamCount = subjectExamRepo.fetchTotalExamCount(studentId,ExamType.SCHEDULEEXAM);
+		response.put("normalExamCount", normalExamCount);
+		response.put("scheduleExamCount", scheduleExamCount);
+		response.put("totalNormalCount", totalNormalExamCount);
+		response.put("totalScheduleExamCount", totalScheduleExamCount);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 }

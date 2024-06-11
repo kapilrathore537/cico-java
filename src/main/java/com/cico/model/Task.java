@@ -17,9 +17,11 @@ import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
+@ToString
 @NoArgsConstructor
 @Entity
 public class Task {

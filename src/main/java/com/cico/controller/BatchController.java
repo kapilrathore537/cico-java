@@ -79,4 +79,13 @@ public class BatchController {
 				.body(response);
 
 	}
+	
+	@GetMapping("/firstUpcomingBatchOfCurrentCourse/{courseName}")
+	public ResponseEntity<?> firstUpcomingBatchOfCurrentCourse(
+			@PathVariable String courseName
+			) {
+		return new ResponseEntity<>(batchService.getFirstUpcomingBatchOfCurrentCourse(courseName),HttpStatus.OK);
+	}
+	
+	
 }

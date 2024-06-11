@@ -92,7 +92,6 @@ public class CourseServiceImpl implements ICourseService {
 
 		Course course = courseRepository.findByCourseIdAndIsDeleted(courseId, false);
 		CourseResponse res = new CourseResponse();
-
 		res.setCourseId(course.getCourseId());
 		res.setCourseName(course.getCourseName());
 		res.setCourseFees(course.getCourseFees());
@@ -169,7 +168,7 @@ public class CourseServiceImpl implements ICourseService {
 		res.setTechnologyStack(stackResponse2);
 		return res;
 	}
-
+//
 //	public Course findCourseById(Integer courseId) {
 //		
 //		Optional<Course> findById = courseRepository.findByCourseId(courseId);

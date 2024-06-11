@@ -1,7 +1,10 @@
 package com.cico.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,7 +27,6 @@ import com.cico.repository.BatchRepository;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
-import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
 import com.cico.util.AppConstants;
 
@@ -32,9 +34,10 @@ import com.cico.util.AppConstants;
 public class BatchServiceImpl implements IBatchService {
 
 	public static final String BATCH_NOT_FOUND = "BATCH NOT FOUND";
+	public static final String BATCH_NOT_AVAILABLE = "No Upcoming Batch Available";
 	public static final String BATCH_ADD_SUCCESS = "Batch Created Successfully";
 	public static final String BATCH_UPDATE_SUCCESS = "Batch Update Successfully";
-
+	public static final String COURSE_NOT_FOUND = "Course Not Found";
 	@Autowired
 	private BatchRepository batchRepository;
 	@Autowired
@@ -162,7 +165,8 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public List<Batch> getUpcomingBatches() {
-		List<Batch> batches = batchRepository.findAllByBatchStartDate();
+		System.err.println(LocalDate.now());
+		List<Batch> batches = batchRepository.findAllByBatchStartDate(LocalDate.now());
 		if (batches.isEmpty())
 			throw new ResourceNotFoundException(BATCH_NOT_FOUND);
 
@@ -208,6 +212,16 @@ public class BatchServiceImpl implements IBatchService {
 			return new ApiResponse(Boolean.TRUE, BATCH_UPDATE_SUCCESS, HttpStatus.CREATED);
 
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
+	}
+
+	@Override
+	public Batch getFirstUpcomingBatchOfCurrentCourse(String courseName) {
+		
+		Course course = courseRepository.findByCourseNameAndIsDeletedFalse(courseName);
+
+		return batchRepository.findByCourseId(course.getCourseId()).orElseThrow(
+				()-> new ResourceNotFoundException(BATCH_NOT_AVAILABLE)
+				);
 	}
 
 }

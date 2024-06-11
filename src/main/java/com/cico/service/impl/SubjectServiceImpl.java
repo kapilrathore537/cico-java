@@ -196,9 +196,9 @@ public class SubjectServiceImpl implements ISubjectService {
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 
 		Course course = studentRepository.findById(studentId).get().getCourse();
-
+		System.err.println(course.toString());
+		System.err.println(course.getSubjects());
 		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
-
 		List<Subject> list = subjects.stream().filter(obj -> obj.getIsDeleted() == false).collect(Collectors.toList());
 
 		List<SubjectResponse> responseSend = new ArrayList<>();
