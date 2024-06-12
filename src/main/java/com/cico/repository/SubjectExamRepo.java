@@ -27,7 +27,7 @@ public interface SubjectExamRepo extends JpaRepository<SubjectExam, Integer> {
 
 	Optional<SubjectExam> findByExamNameAndIsDeletedFalse(String trim);
 
-	@Query(value = "SELECT * FROM subject_exam AS e WHERE e.exam_type ='SCHEDULEEXAM' AND e.is_deleted  = false ORDER BY e.created_date DESC LIMIT 1", nativeQuery = true)
+	@Query(value = "SELECT * FROM subject_exam AS e WHERE e.exam_type ='SCHEDULEEXAM' AND e.is_deleted  = false AND e.is_start = false  ORDER BY e.created_date DESC LIMIT 1", nativeQuery = true)
 	SubjectExam findLatestExam();
 
 	@Query("SELECT COUNT(se) FROM SubjectExam se "

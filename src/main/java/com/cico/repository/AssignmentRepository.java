@@ -104,6 +104,12 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 			+ " WHERE ts.status IN ('Unreviewed' ,'Reviewing' )" + "AND t.isDeleted = 0  AND a.isDeleted =0 AND a.id=:assignmentId "
 			+ " GROUP BY  ts.id ,t.id ")
 	List<AssignmentSubmissionResponse> getAllSubmittedAssignmentTask(Long assignmentId);
+   
+	@Query("SELECT a.title ,t.taskNumber FROM Assignment  a  "
+			+ "JOIN  a.AssignmentQuestion  as t ON t.isDeleted = FALSE  "
+			+ " LEFT JOIN t.assignmentSubmissions  as  submission "
+			+ "WHERE submission.submissionId =:submissionId AND a.isDeleted = FALSE")
+	Object[] fetchAssignmentNameAndTaskNumberByAssignmentSubmissionId(Long submissionId);
 }
 
 

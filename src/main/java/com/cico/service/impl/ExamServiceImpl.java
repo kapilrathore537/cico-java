@@ -407,8 +407,10 @@ public class ExamServiceImpl implements IExamService {
 		Subject subject = subjectServiceImpl.checkSubjectIsPresent(request.getSubjectId());
 		SubjectExam exam = new SubjectExam();
 
-		Optional<SubjectExam> isExamExist = subject.getExams().stream().findFirst()
-				.filter(obj -> obj.getExamName().equals(request.getExamName().trim()));
+		Optional<SubjectExam> isExamExist = subject.getExams().stream()
+			    .filter(obj -> obj.getExamName().equals(request.getExamName().trim()))
+			    .findFirst();
+
 
 		// checking exam existance with the name;
 		boolean contains = isExamExist.isPresent() && subject.getExams().contains(isExamExist.get());
@@ -431,7 +433,11 @@ public class ExamServiceImpl implements IExamService {
 			// ensuring!. checking exam time not under previous exam duration time
 			SubjectExam latestExam = subjectExamRepo.findLatestExam();
 
+			System.err.println(latestExam);
+			
 			if (latestExam != null && subject.getExams().contains(latestExam)) {
+				
+				System.err.println(latestExam);
 
 				LocalDateTime actuallatestExamTime = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
 						latestExam.getExamStartTime());
@@ -490,10 +496,10 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public ResponseEntity<?> updateSubjectExam(AddExamRequest request) {
+		
 		Map<String, Object> response = new HashMap<>();
 
 		SubjectExam exam = checkSubjectExamIsPresent(request.getExamId());
-
 		Optional<SubjectExam> isExamExist = subjectExamRepo.findByExamName(request.getExamName().trim());
 		if (isExamExist.isPresent()) {
 			if (!exam.getExamName().trim().equals(isExamExist.get().getExamName()) && isExamExist.isPresent())

@@ -28,12 +28,6 @@ public class AssignmentSubmission {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long submissionId;
-
-	//private Long assignmentId;
-
-	//private Long taskId;
-
-	
 	@JsonIgnore
 	@OneToOne
 	private Student student;
@@ -49,5 +43,5 @@ public class AssignmentSubmission {
 	private SubmissionStatus status;
 	@Column(columnDefinition = "longtext")
 	private String review;
- //   private String title;
+
 }
