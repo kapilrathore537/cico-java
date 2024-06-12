@@ -103,8 +103,9 @@ public class TaskServiceImpl implements ITaskService {
 		// fetching all the fcmId
 		// sending message via kafka to firebase
 		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(task.getCourse().getCourseId());
-		String message = String.format("A new task (%) has been assigned. Please review and get started.",
-				newTask.getTaskName());
+		String message = String.format("A new task %s has been assigned. Please review and get started.",
+                newTask.getTaskName());
+
 		List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj -> {
 			obj.setMessage(message);
 			return obj;
@@ -305,11 +306,11 @@ public class TaskServiceImpl implements ITaskService {
 			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
-			String.format("Your % task has been accepted. Thank you for your submission.", taskName);
+			String.format("Your %s task has been accepted. Thank you for your submission.", taskName);
 			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
-			String.format("Your % task has been rejected.", taskName);
+			String.format("Your %s task has been rejected.", taskName);
 			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Rejected, review);
 		}
@@ -328,6 +329,7 @@ public class TaskServiceImpl implements ITaskService {
 			// sending message via kafka to firebase
 			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
 			fcmIds.setMessage(message);
+			fcmIds.setTitle("Submission updates!");
 			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
 		}
 

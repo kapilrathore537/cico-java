@@ -37,8 +37,8 @@ public class SubjectExam {
 	@Enumerated(EnumType.STRING)
 	private ExamType examType;
 
-	private Boolean isDeleted = false;
-	private Boolean isActive = false;
+	private Boolean isDeleted = Boolean.FALSE;
+	private Boolean isActive = Boolean.FALSE;
 	private Integer examTimer;
 	private Integer passingMarks;
 	private Integer totalQuestionForTest;

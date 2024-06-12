@@ -48,7 +48,7 @@ public class AssignmentTaskQuestion {
 	@JoinColumn
 	private List<AssignmentSubmission> assignmentSubmissions = new ArrayList<>();
 
-	private Boolean isDeleted;
+	private Boolean isDeleted = Boolean.FALSE;
 
 	private LocalDateTime createdDate;
 	private long taskNumber;

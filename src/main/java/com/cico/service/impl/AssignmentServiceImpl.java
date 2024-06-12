@@ -114,7 +114,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			List<NotificationInfo> fcmIds = studentRepository
 					.findAllFcmIdByCourseId(assignment.getCourse().getCourseId());
 
-			String message = String.format("A new assignment (%) has been assigned. Please review and get started.",
+			String message = String.format("A new assignment %s has been assigned. Please review and get started.",
 					savedAssignment.getTitle());
 
 			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
@@ -210,18 +210,34 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return new ResponseEntity<>(assignmentRepository.findAllAssignmentSubmissionWithCourseIdAndSubjectId(courseId,
 				subjectId, status, PageRequest.of(pageNumber, pageSize)), HttpStatus.OK);
 	}
- 
+
 	@Override
 	public ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId, String status, String review) {
+
+		AssignmentSubmission sub = submissionRepository.findById(submissionId)
+				.orElseThrow(() -> new ResourceNotFoundException("Submission not found with this id!"));
+
+		// fetching assignment title and task Number
+		Object[] details = assignmentRepository.fetchAssignmentNameAndTaskNumberByAssignmentSubmissionId(submissionId);
+		String message = "";
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
+			message = String.format("Your task %d of assignment %s has been accepted. Thank you for your submission.",
+					details[1], details[0]);
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
+			message = String.format("Your task %d of assignment %s has been rejected.", details[1], details[0]);
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Rejected, review);
 		}
 
-		AssignmentSubmission sub = submissionRepository.findById(submissionId).get();
+		// .....firebase notification .....//
+		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(sub.getStudent().getStudentId());
+		fcmIds.setTitle(String.format("%s submission updates!","Assignent"));
+		fcmIds.setMessage(message);
+
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
 
 		AssignmentSubmissionResponse response = new AssignmentSubmissionResponse();
 		response.setApplyForCourse(sub.getStudent().getApplyForCourse());
@@ -229,11 +245,11 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		response.setSubmissionDate(sub.getSubmissionDate());
 		response.setStatus(sub.getStatus().toString());
 		response.setProfilePic(sub.getStudent().getProfilePic());
-		// response.setTitle(sub.getTitle());
 		response.setSubmitFile(sub.getSubmitFile());
 		response.setDescription(sub.getDescription());
 		response.setStatus(sub.getStatus().toString());
 		response.setReview(sub.getReview());
+
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
