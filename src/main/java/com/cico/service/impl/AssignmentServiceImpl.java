@@ -12,11 +12,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.config.AppUtils;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.kafkaServices.KafkaProducerService;
@@ -30,6 +32,8 @@ import com.cico.payload.AssignmentResponse;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.payload.AssignmentSubmissionResponse;
 import com.cico.payload.AssignmentTaskFilterReponse;
+import com.cico.payload.AssignmentTaskSubmissionCounts;
+import com.cico.payload.AssignmentTaskSubmissionSummary;
 import com.cico.payload.CourseResponse;
 import com.cico.payload.NotificationInfo;
 import com.cico.payload.SubjectResponse;
@@ -233,7 +237,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		// .....firebase notification .....//
 		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(sub.getStudent().getStudentId());
-		fcmIds.setTitle(String.format("%s submission updates!","Assignent"));
+		fcmIds.setTitle(String.format("%s submission updates!", "Assignent"));
 		fcmIds.setMessage(message);
 
 		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
@@ -428,10 +432,44 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,
 			Integer subjectId, Integer pageNumber, Integer pageSize) {
+//		Page<Object[]> result = assignmentRepository.findAllAssignmentStatusWithCourseIdAndSubjectId(courseId,
+//				subjectId, PageRequest.of(pageNumber, pageSize));
+//		List<AssignmentTaskSubmissionSummary> objects = convert(result.getContent());
+//		Pageable pageable = (Pageable) PageRequest.of(pageNumber, pageSize);
+//		Page<?> convertListToPage = AppUtils.convertListToPage(objects, pageable);
+//		return ResponseEntity.ok(convertListToPage);
+
+/////////////////////////////////////////////////////////////////////////////////////
+	
 		Page<AssignmentAndTaskSubmission> res = assignmentRepository.findAllAssignmentStatusWithCourseIdAndSubjectId(
 				courseId, subjectId, PageRequest.of(pageNumber, pageSize));
+		
 		return ResponseEntity.ok(res);
+	}
 
+	public List<AssignmentTaskSubmissionSummary> convert(List<Object[]> results) {
+
+		Map<Long, AssignmentTaskSubmissionSummary> assignmentMap = new HashMap<>();
+		for (Object[] row : results) {
+			AssignmentTaskSubmissionSummary assignmentDTO = assignmentMap.computeIfAbsent((Long) row[5], id -> {
+				AssignmentTaskSubmissionSummary newAssignment = new AssignmentTaskSubmissionSummary();
+				newAssignment.setAssignmentId((Long) row[5]);
+				newAssignment.setDescription("");
+				newAssignment.setStatus((boolean) row[7]);
+				newAssignment.setAssignmentTitle((String) row[6]);
+				return newAssignment;
+			});
+			AssignmentTaskSubmissionCounts questionDTO = new AssignmentTaskSubmissionCounts();
+			questionDTO.setTotalSubmitted((Long) row[0]);
+			questionDTO.setUnReviewed((Long) row[1]);
+			questionDTO.setReveiwed((Long) row[2]);
+			questionDTO.setTaskNumber((Long) row[8]);
+			questionDTO.setTaskId((Long) row[10]);
+			assignmentDTO.getTask().add(questionDTO);
+
+		}
+
+		return new ArrayList<>(assignmentMap.values());
 	}
 
 	@Override

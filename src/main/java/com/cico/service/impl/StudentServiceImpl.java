@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1248,53 +1248,16 @@ public class StudentServiceImpl implements IStudentService {
 	// reflect here if any changes are done in that method
 	@Override
 	public ResponseEntity<?> getTotalStudentInLeaves(Integer pageSize, Integer pageNumber) {
-
-		List<OnLeavesResponse> response = new ArrayList<>();
 		Page<OnLeavesResponse> totalStudentInLeaves = studRepo
 				.getTotalStudentInLeaves(PageRequest.of(pageNumber, pageSize));
-
-//		for (Object[] row : totalStudentInLeaves) {
-//			OnLeavesResponse leavesResponse = new OnLeavesResponse();
-//			Integer id = (Integer) row[0];
-//			Map<String, Object> studentData = this.getStudentData(id); // ?????? <-
-//			leavesResponse.setProfilePic(studentData.get("profilePic").toString());
-//			leavesResponse.setApplyForCourse(studentData.get("course").toString());
-//			leavesResponse.setName(studentData.get("studentName").toString());
-//			leavesResponse.setStudentId(id);
-//			leavesResponse.setLeaveDate((LocalDate) row[1]);
-//			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
-//			leavesResponse.setStudentId(id);
-//
-//			response.add(leavesResponse);
-//		}
 		return new ResponseEntity<>(totalStudentInLeaves, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> getTotalTodaysLeavesRequest(Integer pageSize, Integer pageNumber) {
-
 		Page<TodayLeavesRequestResponse> totalTodaysLeavesRequest = studRepo
 				.getTotalTodaysLeavesRequest(PageRequest.of(pageNumber, pageSize));
 		return new ResponseEntity<>(totalTodaysLeavesRequest, HttpStatus.OK);
-//		List<TodayLeavesRequestResponse> response = new ArrayList<>();
-//
-//		for (Object[] row : totalTodaysLeavesRequest) {
-//			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
-//			leavesRequestResponse.setLeaveDate((LocalDate) row[0]);
-//			leavesRequestResponse.setLeaveEndDate((LocalDate) row[1]);
-//			leavesRequestResponse.setStudentId((Integer) row[2]);
-//			leavesRequestResponse.setFullName((String) row[3]);
-//			leavesRequestResponse.setProfilePic((String) row[4]);
-//			leavesRequestResponse.setApplyForCourse((String) row[5]);
-//			leavesRequestResponse.setLeaveTypeId((Integer) row[6]);
-//			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
-//			leavesRequestResponse.setLeaveReason((String) row[8]);
-//			leavesRequestResponse.setLeaveId((Integer) row[9]);
-//			leavesRequestResponse.setLeaveTypeName((String) row[10]);
-//			response.add(leavesRequestResponse);
-//		}
-//
-//		return response;
 	}
 
 	@Override
@@ -1310,11 +1273,12 @@ public class StudentServiceImpl implements IStudentService {
 		// .....firebase notification .....//
 		NotificationInfo fcmIds = studRepo.findFcmIdByStudentId(studentId);
 
-		String message = String
-				.format(leaveStatus.equals("approve") ? "Your leave request has been approved. Enjoy your time off!"
-						: "Your leave request has been denied. Reach out to the admin if you have any questions.");
+		String message = String.format(
+				leaveStatus.equals("approve") ? " %s your leave request has been approved. Enjoy your time off!"
+						: "%s your leave request has been denied. Reach out to the admin if you have any questions.",
+				fcmIds.getFullName());
 		fcmIds.setMessage(message);
-		fcmIds.setTitle(leaveStatus.equals("approve") ? "Leave Approved!" : "Leave Request Denied");
+		fcmIds.setTitle(leaveStatus.equals("approve") ? "Leave Approved!" : "Leave Request Denied!");
 
 		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
 		// .....firebase notification .....//
@@ -1361,13 +1325,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public PageResponse<StudentReponseForWeb> searchStudentByName(String fullName, Integer pageNumber,
 			Integer pageSize) {
-		// TODO Auto-generated method stub
-//		List<Student> findByFullNameContaining = studRepo.findAllByFullNameContaining(fullName);
-//		if (Objects.isNull(findByFullNameContaining)) {
-//			throw new ResourceNotFoundException("Student was not found");
-//		}
-//		List<StudentResponse> asList = Arrays.asList(mapper.map(findByFullNameContaining, StudentResponse[].class));
-//		return asList;
 		Page<StudentReponseForWeb> res = studRepo.findAllByFullNameContaining(fullName,
 				PageRequest.of(pageNumber, pageSize));
 
@@ -1402,9 +1359,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> updateStudent(Student student) {
-
-		StudentResponse studentResponse = new StudentResponse();
-
 		Student studentData = studRepo.findByUserIdAndIsActive(student.getUserId(), true).get();
 		if (Objects.nonNull(studentData)) {
 			if (student.getFullName() != null)
@@ -1672,10 +1626,8 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> allStudent() {
-		// TODO Auto-generated method stub
-		List<Student> findAll = studRepo.getIsCompleted();
-		List<StudentReponseForWeb> collect = findAll.stream().map(obj -> studentFilter(obj))
-				.collect(Collectors.toList());
+		List<StudentReponseForWeb> collect = studRepo.getIsCompleted().parallelStream().map(obj -> studentFilter(obj))
+				.toList();
 		return new ResponseEntity<>(collect, HttpStatus.OK);
 	}
 
@@ -1950,9 +1902,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> allFeesRemainingStudent() {
-
 		List<StudentReponseForWeb> students = studRepo.allFeesRemainingStudent();
-
 		return new ResponseEntity<>(students, HttpStatus.OK);
 
 	}
@@ -1976,6 +1926,50 @@ public class StudentServiceImpl implements IStudentService {
 			map.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
 
 		return new ResponseEntity<>(map, HttpStatus.OK);
+	}
+
+	// getting task statics data of student
+
+	@Override
+	public ResponseEntity<?> getTaskStatics(Integer studentId) {
+		// TODO Auto-generated method stub
+
+		Map<String, Object> response = new HashMap<>();
+
+		List<Object[]> data = studRepo.getTaskStatics(studentId, LocalDate.now().getMonthValue());
+		int currentMonthLength = LocalDate.now().lengthOfMonth();
+
+		Long[] totalSubmitted = new Long[currentMonthLength];
+		Long[] totalAccepted = new Long[currentMonthLength];
+		Long[] totalRejected = new Long[currentMonthLength];
+		Long[] categories = new Long[currentMonthLength];
+
+		Arrays.fill(totalSubmitted, 0L); // Initialize the days array with zeros
+		Arrays.fill(totalRejected, 0L);
+		Arrays.fill(totalAccepted, 0L);
+		
+		for (int i = 0; i < currentMonthLength; i++) {
+		    categories[i] = (long) (i + 1); // Assigning values from 1 to currentMonthLength
+		}
+		data.forEach(d -> {
+			// Assuming the data format is [dayOfMonth, taskCount]
+			Integer dayOfMonth = (Integer) d[0];
+			Long taskCount = (Long) d[1];
+
+			if (dayOfMonth > 0 && dayOfMonth <= currentMonthLength) {
+				totalSubmitted[(int) (dayOfMonth - 1)] = taskCount; // Store taskCount in the corresponding day
+			}
+			totalAccepted[(int) (dayOfMonth - 1)] = (Long) d[2];
+			totalRejected[(int) (dayOfMonth - 1)] = (Long) d[3];
+
+		});
+		
+
+		response.put("totalSubmitted", totalSubmitted);
+		response.put("totalAccepted", totalAccepted);
+		response.put("totalRejected", totalRejected);
+		response.put("categories", categories);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 }
