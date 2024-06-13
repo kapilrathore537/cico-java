@@ -120,4 +120,6 @@ public interface IStudentService {
 
 	public ResponseEntity<?> updateFcmId(HttpHeaders header, String fcmId);
 
+	public ResponseEntity<?> getTaskStatics(Integer studentId);
+
 }

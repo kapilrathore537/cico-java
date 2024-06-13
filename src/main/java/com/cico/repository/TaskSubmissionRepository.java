@@ -25,7 +25,7 @@ public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, 
 	@Transactional
 	@Modifying
 	@Query("UPDATE TaskSubmission a SET a.status=:status , a.review=:review WHERE a.id=:id")
-	TaskSubmission updateSubmitTaskStatus(@Param("id") Long submissionId, @Param("status") SubmissionStatus status,
+	int updateSubmitTaskStatus(@Param("id") Long submissionId, @Param("status") SubmissionStatus status,
 			@Param("review") String review);
 
 	@Query("SELECT s FROM TaskSubmission s WHERE s.id=:id")

@@ -52,4 +52,5 @@ public class AssignmentTaskQuestion {
 
 	private LocalDateTime createdDate;
 	private long taskNumber;
+	private Boolean isActive = Boolean.FALSE;
 }

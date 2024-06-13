@@ -128,5 +128,17 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("UPDATE  Student  s SET s.fcmId =:fcmId   WHERE s.studentId =:studentId ")
 	int updateFcmId(@Param("fcmId") String fcmId, @Param("studentId") Integer studentId);
 
+	
+	@Query("SELECT  DAY(ts.submissionDate) as day "
+			+ ",COUNT(ts) as totalSubmission "
+			+ ",COUNT(CASE WHEN ts.status ='Accepted' THEN 1 ELSE NULL END )as totalAccepted"
+			+ " ,COUNT(CASE WHEN ts.status ='Rejected' THEN 1 ELSE NULL END) as totalRejected "
+			+ "FROM Task as  t  LEFT JOIN t.assignmentSubmissions as ts "
+			+ " WHERE ts.student.studentId =:studentId AND "
+			+ " MONTH(ts.submissionDate) =:month "
+			+ " GROUP BY  DAY(ts.submissionDate ) ")
+	 List<Object[]> getTaskStatics(@Param("studentId") Integer studentId,@Param("month") Integer month);
+
+
 	// END FCM ID'S //
 }

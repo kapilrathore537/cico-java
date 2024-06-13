@@ -299,39 +299,39 @@ public class TaskServiceImpl implements ITaskService {
 
 		TaskSubmissionResponse response = new TaskSubmissionResponse();
 
-		Optional<String> taskName = taskRepo.fetchTaskNameByTaskSubmissionId(res.get().getId());
+	//	Optional<String> taskName = taskRepo.fetchTaskNameByTaskSubmissionId(res.get().getId());
 		TaskSubmission updateSubmitTaskStatus = new TaskSubmission();
 
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
-			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
-			String.format("Your %s task has been accepted. Thank you for your submission.", taskName);
-			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+			String.format("Your %s task has been accepted. Thank you for your submission.", "");
+			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
-			String.format("Your %s task has been rejected.", taskName);
-			updateSubmitTaskStatus = taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+			String.format("Your %s task has been rejected.", "");
+			taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
 					SubmissionStatus.Rejected, review);
 		}
 
-		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
-		response.setId(updateSubmitTaskStatus.getId());
-		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
-		response.setReview(updateSubmitTaskStatus.getReview());
-		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
-		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
-		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
-		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+//		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
+//		response.setId(updateSubmitTaskStatus.getId());
+//		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
+//		response.setReview(updateSubmitTaskStatus.getReview());
+//		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
+//		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
+//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
 
-		if (taskName.isPresent()) {
-			// fetching all the fcmId
-			// sending message via kafka to firebase
-			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
-			fcmIds.setMessage(message);
-			fcmIds.setTitle("Submission updates!");
-			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
-		}
+//		if (taskName.isPresent()) {
+//			// fetching all the fcmId
+//			// sending message via kafka to firebase
+//			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
+//			fcmIds.setMessage(message);
+//			fcmIds.setTitle("Submission updates!");
+//			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
+//		}
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
