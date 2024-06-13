@@ -55,4 +55,6 @@ public interface IExamService {
 
 	ResponseEntity<?> getChapterExam(Integer chapterId);
 
+	ResponseEntity<?> getSubjectExamCount(Integer studentId);
+
 }

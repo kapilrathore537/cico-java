@@ -39,6 +39,10 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 	@Query("SELECT a FROM Assignment a WHERE a.title =:title AND a.isDeleted =0 ")
 	Optional<Assignment> findByName(@Param("title") String title);
 	
+	
+	
+	/////////////////////////////////////// start 
+	
 	@Query("SELECT NEW com.cico.payload.AssignmentAndTaskSubmission(t.id, " + "COUNT(DISTINCT ts), "
 			+ "COUNT(DISTINCT CASE WHEN ts.status = 'Unreviewed' THEN ts END), "
 			+ "COUNT(DISTINCT CASE WHEN ts.status IN ('Rejected' , 'Accepted' ,'Reviewing' ) THEN ts END), "
@@ -49,6 +53,23 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 	Page<AssignmentAndTaskSubmission> findAllAssignmentStatusWithCourseIdAndSubjectId(
 			@Param("courseId") Integer courseId, @Param("subjectId") Integer subjectId, PageRequest reuqest);
 
+//	@Query("SELECT  COUNT(DISTINCT ts), "
+//			+ "COUNT(DISTINCT CASE WHEN ts.status = 'Unreviewed' THEN ts END), "
+//			+ "COUNT(DISTINCT CASE WHEN ts.status IN ('Rejected' , 'Accepted' ,'Reviewing' ) THEN ts END), "
+//			+ "COUNT(t), SUBSTRING(t.question ,1,15) ,a.id , a.title ,a.isActive ,t.taskNumber,t.isActive , t.id " + "FROM Assignment a " + "LEFT JOIN a.AssignmentQuestion t ON  t.isDeleted = 0 "
+//			+ "LEFT JOIN t.assignmentSubmissions ts "
+//			+ "WHERE ( a.course.courseId =:courseId OR :courseId = 0 )AND ( a.subject.subjectId =:subjectId  OR :subjectId = 0) "
+//			+ "AND a.isDeleted = 0 " + " AND a.isDeleted =0 GROUP BY a.id,a.title, t.id  ORDER BY a.createdDate ,t.createdDate ")
+//	Page<Object[]> findAllAssignmentStatusWithCourseIdAndSubjectId(
+//			@Param("courseId") Integer courseId, @Param("subjectId") Integer subjectId, PageRequest reuqest);
+	
+	////////////////////////////////////////end 
+
+	
+	
+	//// start 
+	
+	
 //	@Query("SELECT  "
 //			+ " NEW com.cico.payload.AssignmentSubmissionResponse(ts.student.applyForCourse ,ts.student.fullName ,ts.submissionDate ,ts.status,ts.student.profilePic,a.title,ts.submitFile,ts.description,ts.submissionId,ts.review , a.id ,t.taskNumber) "
 //			+ "FROM Assignment a " + "JOIN a.AssignmentQuestion t " + "  JOIN t.assignmentSubmissions ts "
@@ -84,6 +105,8 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 		        PageRequest pageRequest);
 
 
+	
+	///// end
 	@Query("SELECT "
 			+ "NEW com.cico.payload.TaskStatusSummary(  COUNT(ts) as totalCount, COUNT(CASE WHEN ts.status IN ('Rejected', 'Accepted', 'Reviewing') THEN ts END) as reviewedCount,COUNT(CASE WHEN ts.status = 'Unreviewed' THEN ts END) as unreviewedCount)"
 			+ "FROM Assignment a " + " JOIN a.AssignmentQuestion t ON t.isDeleted = 0 "
@@ -104,6 +127,12 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 			+ " WHERE ts.status IN ('Unreviewed' ,'Reviewing' )" + "AND t.isDeleted = 0  AND a.isDeleted =0 AND a.id=:assignmentId "
 			+ " GROUP BY  ts.id ,t.id ")
 	List<AssignmentSubmissionResponse> getAllSubmittedAssignmentTask(Long assignmentId);
+   
+	@Query("SELECT a.title ,t.taskNumber FROM Assignment  a  "
+			+ "JOIN  a.AssignmentQuestion  as t ON t.isDeleted = FALSE  "
+			+ " LEFT JOIN t.assignmentSubmissions  as  submission "
+			+ "WHERE submission.submissionId =:submissionId AND a.isDeleted = FALSE")
+	Object[] fetchAssignmentNameAndTaskNumberByAssignmentSubmissionId(Long submissionId);
 }
 
 

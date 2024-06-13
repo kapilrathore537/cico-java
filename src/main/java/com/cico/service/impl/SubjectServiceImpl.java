@@ -196,9 +196,8 @@ public class SubjectServiceImpl implements ISubjectService {
 
 		Course course = studentRepository.findById(studentId).get().getCourse();
 
-		List<Subject> list = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects().parallelStream()
-				.filter(obj -> !obj.getIsDeleted()).toList();
-		
+		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
+		List<Subject> list = subjects.parallelStream().filter(obj ->!obj.getIsDeleted()).toList();
 		if (list.isEmpty())
 			new ResourceNotFoundException("No subject available");
 

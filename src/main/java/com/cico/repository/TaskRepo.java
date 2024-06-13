@@ -52,15 +52,6 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 			+ "FROM Task t LEFT JOIN t.assignmentSubmissions ts GROUP BY  t.id ")
 	Page<AssignmentAndTaskSubmission> getAllSubmissionTaskStatus(PageRequest pageRequest);
 
-//	@Query("SELECT "
-//			+ " NEW com.cico.payload.AssignmentSubmissionResponse(ts.student.applyForCourse, ts.student.fullName, ts.submissionDate, ts.status, ts.student.profilePic, t.taskName, ts.submittionFileName, ts.taskDescription, ts.id, ts.review ,t.taskId) "
-//			+ " FROM Task t JOIN t.assignmentSubmissions ts "
-//			+ " WHERE (t.course.courseId = :courseId OR :courseId = 0) AND (t.subject.subjectId = :subjectId OR :subjectId = 0) AND (ts.status = :status OR :status = 'NOT_CHECKED_WITH_IT') "
-//			+ " AND t.isDeleted = 0 " + " GROUP BY ts.submissionDate, ts.id ,t.id "
-//			+ " ORDER BY CASE WHEN ts.status = 'Unreviewed' THEN 0 ELSE 1 END, ts.status, MAX(ts.submissionDate) DESC, ts.id, t.id")
-//	Page<AssignmentSubmissionResponse> findAllSubmissionTaskWithCourseIdAndSubjectId(
-//			@Param("courseId") Integer courseId, @Param("subjectId") Integer subjectId,
-//			@Param("status") SubmissionStatus status, PageRequest pageRequest);
 	@Query("SELECT "
 			+ " NEW com.cico.payload.AssignmentSubmissionResponse(ts.student.applyForCourse, ts.student.fullName, ts.submissionDate, ts.status, ts.student.profilePic, t.taskName, ts.submittionFileName, ts.taskDescription, ts.id, ts.review ,t.taskId) "
 			+ " FROM Task t JOIN t.assignmentSubmissions ts "
@@ -72,25 +63,15 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 	Page<AssignmentSubmissionResponse> findAllSubmissionTaskWithCourseIdAndSubjectId(
 			@Param("courseId") Integer courseId, @Param("subjectId") Integer subjectId,
 			@Param("status") SubmissionStatus status, PageRequest pageRequest);
-   
+
 	@Query("SELECT "
 			+ " NEW com.cico.payload.AssignmentSubmissionResponse(ts.student.applyForCourse, ts.student.fullName, ts.submissionDate, ts.status, ts.student.profilePic, t.taskName, ts.submittionFileName, ts.taskDescription, ts.id, ts.review ,t.taskId) "
 			+ " FROM Task t LEFT  JOIN t.assignmentSubmissions ts WHERE "
-			+ " ts.status IN('Unreviewed','Reviewing')   AND t.taskId=:taskId "
-			+ " AND t.isDeleted = 0 " + " GROUP BY ts.submissionDate, ts.id ,t.id ")
+			+ " ts.status IN('Unreviewed','Reviewing')   AND t.taskId=:taskId " + " AND t.isDeleted = 0 "
+			+ " GROUP BY ts.submissionDate, ts.id ,t.id ")
 	List<AssignmentSubmissionResponse> getAllTaskSubmissionBYTaskId(Long taskId);
 
-//	@Query("SELECT t.taskName ,t.taskId,ts.submissionDate FROM Course c   JOIN " + " c.subjects s "
-//			+ " JOIN Task t ON t.course.courseId =c.courseId AND t.subject.subjectId =s.subjectId  "
-//			+ "  JOIN t.assignmentSubmissions  ts ON ts.student.studentId =:studentId " + "JOIN Student ss "
-//			+ "	WHERE t.subject.subjectId = s.subjectId "
-//			+ " AND ss.course.courseId = c.courseId GROUP BY c.courseId ,s.subjectId ,t.taskId ,ts.id ")
-	
-//	@Query("SELECT t.taskName, t.taskId, ts.submissionDate FROM Course c JOIN c.subjects s "
-//	        + "JOIN Task t ON t.course.courseId = c.courseId AND t.subject.subjectId = s.subjectId "
-//	        + "LEFT JOIN t.assignmentSubmissions ts ON ts.student.studentId = :studentId "
-//	        + "JOIN Student ss  WHERE ss.course.courseId = c.courseId "
-//	        + "GROUP BY c.courseId, s.subjectId, t.taskId, ts.id")
-//	Page<Task> getAllTaskOfStudent(Integer studentId, PageRequest of);
+	@Query(value = "SELECT t.task_name FROM Task t WHERE t.task_id = (SELECT ts.assignment_submissions_task_id FROM TaskSubmission ts WHERE ts.id =:id) ", nativeQuery = true)
+	Optional<String> fetchTaskNameByTaskSubmissionId(@Param("id") Long id);
 
 }

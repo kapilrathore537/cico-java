@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -19,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -37,32 +39,30 @@ public class Course {
 	private String sortDescription;
 	private LocalDate createdDate;
 	private LocalDate updatedDate;
-    private Boolean isDeleted=false;
-    private Boolean isStarterCourse=false;
-	
-    @OneToOne
-    @JoinColumn
-    private TechnologyStack technologyStack;
-    
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<Subject> subjects = new ArrayList<>();
-    
-   
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn
-    private List<Batch> batches = new ArrayList<>();
-   
-    
+	private Boolean isDeleted = false;
+	private Boolean isStarterCourse = false;
+
+	@OneToOne
+	@JoinColumn
+	private TechnologyStack technologyStack;
+
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<Subject> subjects = new ArrayList<>();
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn
+	private List<Batch> batches = new ArrayList<>();
+
 	public Course(String courseName, String courseFees, String duration, String sortDescription,
-			TechnologyStack technologyStack,Boolean isStarterCourse) {
+			TechnologyStack technologyStack, Boolean isStarterCourse) {
 		super();
 		this.courseName = courseName;
 		this.courseFees = courseFees;
 		this.duration = duration;
 		this.sortDescription = sortDescription;
-		
+
 		this.technologyStack = technologyStack;
-		this.isStarterCourse=isStarterCourse;
+		this.isStarterCourse = isStarterCourse;
 	}
-	
+
 }

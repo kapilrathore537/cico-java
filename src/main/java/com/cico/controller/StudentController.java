@@ -1,6 +1,5 @@
 package com.cico.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Student;
-import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentReponseForWeb;
-import com.cico.payload.StudentReponseForWeb;
-import com.cico.payload.StudentReponseForWeb;
-import com.cico.payload.StudentReponseForWeb;
-import com.cico.payload.StudentReponseForWeb;
 import com.cico.payload.StudentResponse;
-import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 
@@ -289,7 +282,7 @@ public class StudentController {
 	public ResponseEntity<?> allStudent() {
 		return studentService.allStudent();
 	}
-	
+
 	@GetMapping("/allFeesRemainingStudent")
 	public ResponseEntity<?> allFeesRemainingStudent() {
 		return studentService.allFeesRemainingStudent();
@@ -311,4 +304,22 @@ public class StudentController {
 				HttpStatus.OK);
 	}
 
+	@PutMapping("/updateFcmId")
+	public ResponseEntity<?> updateFcmId(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+			@RequestParam("fcmId") String fcmId) {
+		return studentService.updateFcmId(header, fcmId);
+	}
+	
+	@GetMapping("/taskStatics")
+	public ResponseEntity<?>getTaskStatics(@RequestParam("studentId")Integer studentId){
+		return studentService.getTaskStatics(studentId);
+	}
+
 }
+
+
+
+
+
+
+

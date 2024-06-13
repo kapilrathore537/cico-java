@@ -17,15 +17,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.JobAlert;
 import com.cico.model.TechnologyStack;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.JobAlertResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.PageResponse;
 import com.cico.repository.JobAlertRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.service.IJobAlertService;
 import com.cico.service.ITechnologyStackService;
 import com.cico.util.AppConstants;
+import com.cico.util.JobType;
+import com.cico.util.NotificationConstant;
 
 @Service
 public class JobAlertServiceImpl implements IJobAlertService {
@@ -39,15 +44,39 @@ public class JobAlertServiceImpl implements IJobAlertService {
 	@Autowired
 	private ModelMapper mapper;
 
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
+
+	@Autowired
+	private StudentRepository studentRepository;
+
 	@Override
 	public JobAlert createJob(Integer technologyStackId, String jobTitle, String jobDescription, String companyName,
-			String experienceRequired, String technicalSkills, String type, String jobPackage) {
+			String experienceRequired, String technicalSkills, JobType type, String jobPackage) {
 		JobAlert alert = new JobAlert(jobTitle, jobDescription, companyName, experienceRequired, technicalSkills, true,
 				type, jobPackage);
 		alert.setIsDeleted(false);
 		alert.setCreatedDate(LocalDateTime.now());
 		alert.setUpdatedDate(LocalDateTime.now());
 		alert.setTechnologyStack(technologyStackService.getTechnologyStack(technologyStackId));
+
+		// .....firebase notification .....//
+
+		List<NotificationInfo> fcmIds = studentRepository.fetchAllStudentIsCompletedFalse();
+
+		String message = String.format(
+				type.equals(JobType.JOB) ? "An exciting job opportunity has just been posted. Explore the details!."
+						: "An exciting internship opportunity has just been posted. Explore the details!");
+
+		List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
+			obj1.setTitle(type.equals(JobType.JOB) ? "New Job Alert!" : " New Internship Alert!");
+			obj1.setMessage(message);
+			return obj1;
+		}).toList();
+
+		kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
+		// .....firebase notification .....//
+
 		return repository.save(alert);
 	}
 
@@ -139,7 +168,8 @@ public class JobAlertServiceImpl implements IJobAlertService {
 	}
 
 	@Override
-	public PageResponse<JobAlertResponse> getAllJobAlert(int page, int size, String type) {
+	public PageResponse<JobAlertResponse> getAllJobAlert(int page, int size, JobType type) {
+
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "type");
 		Page<JobAlert> jobAlert = repository.findAllByTypeAndIsDeletedAndIsActive(type, false, true, pageable);
 		if (jobAlert.getNumberOfElements() == 0) {

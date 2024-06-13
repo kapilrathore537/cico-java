@@ -1,5 +1,7 @@
 package com.cico.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,11 +25,11 @@ public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, 
 	@Transactional
 	@Modifying
 	@Query("UPDATE TaskSubmission a SET a.status=:status , a.review=:review WHERE a.id=:id")
-	void updateSubmitTaskStatus(@Param("id") Long submissionId, @Param("status") SubmissionStatus status,
+	int updateSubmitTaskStatus(@Param("id") Long submissionId, @Param("status") SubmissionStatus status,
 			@Param("review") String review);
 
 	@Query("SELECT s FROM TaskSubmission s WHERE s.id=:id")
-	TaskSubmission findBySubmissionId(@Param("id") Long submissionId);
+	Optional<TaskSubmission> findBySubmissionId(@Param("id") Long submissionId);
 
 	@Query("SELECT ts FROM Task t RIGHT JOIN  t.assignmentSubmissions ts  WHERE ts.student.studentId =:studentId AND  t.taskId =:taskId")
 	TaskSubmission findByTaskIdAndStudentId(@Param("taskId") Long taskId, @Param("studentId") Integer studentId);

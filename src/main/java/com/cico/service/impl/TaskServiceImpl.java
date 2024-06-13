@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.config.AppUtils;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Course;
 import com.cico.model.Student;
 import com.cico.model.Subject;
@@ -32,6 +33,7 @@ import com.cico.model.TaskSubmission;
 import com.cico.payload.AssignmentAndTaskSubmission;
 import com.cico.payload.AssignmentSubmissionResponse;
 import com.cico.payload.CourseResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.SubjectResponse;
 import com.cico.payload.TaskFilterRequest;
 import com.cico.payload.TaskQuestionResponse;
@@ -47,6 +49,7 @@ import com.cico.repository.TaskRepo;
 import com.cico.repository.TaskSubmissionRepository;
 import com.cico.service.ITaskService;
 import com.cico.util.AppConstants;
+import com.cico.util.NotificationConstant;
 import com.cico.util.SubmissionStatus;
 
 @Service
@@ -77,6 +80,9 @@ public class TaskServiceImpl implements ITaskService {
 	@Autowired
 	private CourseRepository courseRepository;
 
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
+
 	@Override
 	public ResponseEntity<?> createTask(TaskRequest taskRequest) {
 		if (taskRepo.findByTaskName(taskRequest.getTaskName().trim()) != null)
@@ -93,6 +99,19 @@ public class TaskServiceImpl implements ITaskService {
 		Task newTask = taskRepo.save(task);
 		response.put(AppConstants.MESSAGE, AppConstants.CREATE_SUCCESS);
 		response.put("taskId", newTask.getTaskId());
+
+		// fetching all the fcmId
+		// sending message via kafka to firebase
+		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(task.getCourse().getCourseId());
+		String message = String.format("A new task %s has been assigned. Please review and get started.",
+                newTask.getTaskName());
+
+		List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj -> {
+			obj.setMessage(message);
+			return obj;
+		}).toList();
+		kafkaProducerService.sendNotification(NotificationConstant.TASK_TOPIC, newlist.toString());
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -155,7 +174,6 @@ public class TaskServiceImpl implements ITaskService {
 		return res;
 	}
 
-
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
 			String taskDescription) {
@@ -175,6 +193,15 @@ public class TaskServiceImpl implements ITaskService {
 			task.get().getAssignmentSubmissions().add(object);
 			taskRepo.save(task.get());
 			if (Objects.nonNull(object)) {
+
+				// .....firebase notification .....//
+				NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(studentId);
+				String message = String.format("Your task has been successfully submitted. Thank you!");
+				fcmIds.setMessage(message);
+				fcmIds.setTitle("Submission updates!");
+				kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+				// .....firebase notification .....//
+
 				return new ResponseEntity<>(HttpStatus.OK);
 			} else
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -253,24 +280,48 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> updateSubmitedTaskStatus(Long submissionId, String status, String review) {
+
+		Optional<TaskSubmission> res = taskSubmissionRepository.findBySubmissionId(submissionId);
+		if (res.isEmpty())
+			throw new ResourceNotFoundException("Submission not found");
+		String message = "";
+
+		TaskSubmissionResponse response = new TaskSubmissionResponse();
+
+	//	Optional<String> taskName = taskRepo.fetchTaskNameByTaskSubmissionId(res.get().getId());
+		TaskSubmission updateSubmitTaskStatus = new TaskSubmission();
+
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
-			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Reviewing, review);
+			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+					SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
-			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Accepted, review);
+			String.format("Your %s task has been accepted. Thank you for your submission.", "");
+			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+					SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
-			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Rejected, review);
+			String.format("Your %s task has been rejected.", "");
+			taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
+					SubmissionStatus.Rejected, review);
 		}
 
-		TaskSubmission res = taskSubmissionRepository.findBySubmissionId(submissionId);
-		TaskSubmissionResponse response = new TaskSubmissionResponse();
-		response.setFullName(res.getStudent().getFullName());
-		response.setId(res.getId());
-		response.setProfilePic(res.getStudent().getProfilePic());
-		response.setReview(res.getReview());
-		response.setStatus(res.getStatus().toString());
-		response.setSubmissionDate(res.getSubmissionDate());
-		response.setSubmittionFileName(res.getSubmittionFileName());
-		response.setSubmittionFileName(res.getSubmittionFileName());
+//		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
+//		response.setId(updateSubmitTaskStatus.getId());
+//		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
+//		response.setReview(updateSubmitTaskStatus.getReview());
+//		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
+//		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
+//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+
+//		if (taskName.isPresent()) {
+//			// fetching all the fcmId
+//			// sending message via kafka to firebase
+//			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
+//			fcmIds.setMessage(message);
+//			fcmIds.setTitle("Submission updates!");
+//			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
+//		}
+
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
@@ -288,11 +339,11 @@ public class TaskServiceImpl implements ITaskService {
 		List<TaskResponse> collect = new ArrayList<>();
 		student.getCourse().getSubjects().forEach(obj -> {
 			collect.addAll(taskRepo.findBySubjectAndIsDeletedFalse(obj).stream().filter(checkOlder -> {
-				if (checkOlder.getIsLatest()){
+				if (checkOlder.getIsLatest()) {
 					if (!checkOlder.getIsActive()) {
 						if (checkSubmission(checkOlder.getTaskId(), studentId)) {
 							return true;
-						}else
+						} else
 							return false;
 					}
 					return true;

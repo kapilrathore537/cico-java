@@ -1,4 +1,4 @@
-package com.cico.service.impl;
+package com.cico.kafkaServices;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

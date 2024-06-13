@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -95,6 +98,47 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT NEW com.cico.payload.StudentReponseForWeb(s.fullName,s.studentId) FROM Student s WHERE s NOT IN (SELECT f.student FROM Fees f )")
 	List<StudentReponseForWeb> allFeesRemainingStudent();
 
-	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.course =course")
-	List<NotificationInfo> findAllFcmIdByCourseId(List<Course> course);
+	// FINDING FCM ID'S FOR FIREBASE NOTIFICATION
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.course IN :course")
+	List<NotificationInfo> findAllFcmIdByCourseIds(@Param("course") List<Course> course);
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.course.courseId =:courseId")
+	List<NotificationInfo> findAllFcmIdByCourseId(Integer courseId);
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.studentId =:studentId")
+	NotificationInfo findFcmIdByStudentId(@Param("studentId") Integer studentId);
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s "
+			+ "JOIN s.course  as  c "
+			+ " WHERE  c IN (SELECT course  FROM Course  as course JOIN course.subjects as subject WHERE subject.subjectId =: subjectId) ")
+	List<NotificationInfo> findAllFcmIdBySubjectId(@Param("subjectId") Integer subjectId);
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s "
+			+ "JOIN s.course  as  c "
+			+ " WHERE  c IN (SELECT course  FROM Course  as course JOIN course.subjects as subject "
+			+ " LEFT JOIN subject.exams as e " + "WHERE e.examId =:examId ) ")
+	List<NotificationInfo> findAllFcmIdByExamId(Integer examId);
+
+	@Query("SELECT NEW com.cico.payload.NotificationInfo(s.studentId ,s.fcmId,s.fullName) FROM Student s  WHERE s.isCompleted =FALSE ")
+	List<NotificationInfo> fetchAllStudentIsCompletedFalse();
+
+	@Transactional
+	@Modifying
+	@Query("UPDATE  Student  s SET s.fcmId =:fcmId   WHERE s.studentId =:studentId ")
+	int updateFcmId(@Param("fcmId") String fcmId, @Param("studentId") Integer studentId);
+
+	
+	@Query("SELECT  DAY(ts.submissionDate) as day "
+			+ ",COUNT(ts) as totalSubmission "
+			+ ",COUNT(CASE WHEN ts.status ='Accepted' THEN 1 ELSE NULL END )as totalAccepted"
+			+ " ,COUNT(CASE WHEN ts.status ='Rejected' THEN 1 ELSE NULL END) as totalRejected "
+			+ "FROM Task as  t  LEFT JOIN t.assignmentSubmissions as ts "
+			+ " WHERE ts.student.studentId =:studentId AND "
+			+ " MONTH(ts.submissionDate) =:month "
+			+ " GROUP BY  DAY(ts.submissionDate ) ")
+	 List<Object[]> getTaskStatics(@Param("studentId") Integer studentId,@Param("month") Integer month);
+
+
+	// END FCM ID'S //
 }

@@ -17,9 +17,11 @@ import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
+@ToString
 @NoArgsConstructor
 @Entity
 public class Task {
@@ -37,7 +39,7 @@ public class Task {
 	private List<TaskQuestion> TaskQuestion = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn
+	@JoinColumn(columnDefinition = "task_id")
 	private List<TaskSubmission> assignmentSubmissions;
 
 	@OneToOne

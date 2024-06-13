@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.kafkaServices.KafkaProducerService;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterCompleted;
 import com.cico.model.ChapterExamResult;
@@ -33,6 +34,7 @@ import com.cico.payload.AddExamRequest;
 import com.cico.payload.ChapterExamResultResponse;
 import com.cico.payload.ExamRequest;
 import com.cico.payload.ExamResultResponse;
+import com.cico.payload.NotificationInfo;
 import com.cico.payload.QuestionResponse;
 import com.cico.payload.SubjectExamResponse;
 import com.cico.repository.ChapterCompletedRepository;
@@ -46,6 +48,7 @@ import com.cico.repository.SubjectRepository;
 import com.cico.service.IExamService;
 import com.cico.util.AppConstants;
 import com.cico.util.ExamType;
+import com.cico.util.NotificationConstant;
 
 @Service
 public class ExamServiceImpl implements IExamService {
@@ -76,6 +79,9 @@ public class ExamServiceImpl implements IExamService {
 
 	@Autowired
 	private SubjectServiceImpl subjectServiceImpl;
+
+	@Autowired
+	private KafkaProducerService kafkaProducerService;
 
 	@Override
 	public ResponseEntity<?> addChapterExamResult(ExamRequest chapterExamResult) {
@@ -133,6 +139,15 @@ public class ExamServiceImpl implements IExamService {
 		res.setWrongQuestions(save.getWrongQuestions());
 		res.setId(save.getId());
 
+		// .....firebase notification .....//
+
+		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(student.getStudentId());
+		String message = String.format("Congratulations! You have successfully completed your exam. Well done!");
+		fcmIds.setMessage(message);
+		fcmIds.setTitle("Exam Completed!");
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
+
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
@@ -146,7 +161,6 @@ public class ExamServiceImpl implements IExamService {
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.EXAM_NOT_FOUND));
 
 		if (subjectExam.getExamType() == ExamType.SCHEDULEEXAM) {
-
 			LocalDateTime scheduledDateTime = LocalDateTime.of(subjectExam.getScheduleTestDate(),
 					subjectExam.getExamStartTime());
 			LocalDateTime examEndTime = scheduledDateTime.plus(subjectExam.getExamTimer() + 1, ChronoUnit.MINUTES);
@@ -197,6 +211,7 @@ public class ExamServiceImpl implements IExamService {
 				}
 			}
 		}
+
 		examResult.setSubject(subject);
 		examResult.setSubjectExamId(request.getExamId());
 		examResult.setRandomQuestoinList(request.getQuestionList());
@@ -217,6 +232,15 @@ public class ExamServiceImpl implements IExamService {
 		res.setScoreGet(save.getScoreGet());
 		res.setWrongQuestions(save.getWrongQuestions());
 		res.setId(save.getId());
+
+		// .....firebase notification .....//
+
+		NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(student.getStudentId());
+		String message = String.format("Congratulations! You have successfully completed your exam. Well done!");
+		fcmIds.setMessage(message);
+		fcmIds.setTitle("Exam Completed!");
+		kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, fcmIds.toString());
+		// .....firebase notification .....//
 
 		return new ResponseEntity<>(res, HttpStatus.OK);
 
@@ -383,8 +407,10 @@ public class ExamServiceImpl implements IExamService {
 		Subject subject = subjectServiceImpl.checkSubjectIsPresent(request.getSubjectId());
 		SubjectExam exam = new SubjectExam();
 
-		Optional<SubjectExam> isExamExist = subject.getExams().stream().findFirst()
-				.filter(obj -> obj.getExamName().equals(request.getExamName().trim()));
+		Optional<SubjectExam> isExamExist = subject.getExams().stream()
+			    .filter(obj -> obj.getExamName().equals(request.getExamName().trim()))
+			    .findFirst();
+
 
 		// checking exam existance with the name;
 		boolean contains = isExamExist.isPresent() && subject.getExams().contains(isExamExist.get());
@@ -407,7 +433,11 @@ public class ExamServiceImpl implements IExamService {
 			// ensuring!. checking exam time not under previous exam duration time
 			SubjectExam latestExam = subjectExamRepo.findLatestExam();
 
+			System.err.println(latestExam);
+			
 			if (latestExam != null && subject.getExams().contains(latestExam)) {
+				
+				System.err.println(latestExam);
 
 				LocalDateTime actuallatestExamTime = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
 						latestExam.getExamStartTime());
@@ -466,10 +496,10 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public ResponseEntity<?> updateSubjectExam(AddExamRequest request) {
+		
 		Map<String, Object> response = new HashMap<>();
 
 		SubjectExam exam = checkSubjectExamIsPresent(request.getExamId());
-
 		Optional<SubjectExam> isExamExist = subjectExamRepo.findByExamName(request.getExamName().trim());
 		if (isExamExist.isPresent()) {
 			if (!exam.getExamName().trim().equals(isExamExist.get().getExamName()) && isExamExist.isPresent())
@@ -625,7 +655,7 @@ public class ExamServiceImpl implements IExamService {
 		allSubjectExam.stream().forEach(obj -> {
 			if (obj.getExamType().equals(ExamType.SCHEDULEEXAM)) {
 				LocalDateTime scheduledDateTime = LocalDateTime.of(obj.getScheduleTestDate(), obj.getExamStartTime());
-				LocalDateTime examEndTime = scheduledDateTime.plus(2, ChronoUnit.MINUTES);
+				LocalDateTime examEndTime = scheduledDateTime.plus(AppConstants.EXTRA_EXAM_TIME, ChronoUnit.MINUTES);
 				LocalDateTime now = LocalDateTime.now();
 
 				if (now.isBefore(examEndTime)) {
@@ -652,6 +682,21 @@ public class ExamServiceImpl implements IExamService {
 		if (!exam.getIsStart()) {
 			exam.setIsActive(!exam.getIsActive());
 			subjectExamRepo.save(exam);
+
+			// .....firebase notification .....//
+
+			List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByExamId(examId);
+			String message = String
+					.format("An exam has been scheduled. Please check the details and prepare accordingly.");
+
+			List<NotificationInfo> newlist = fcmIds.parallelStream().map(obj -> {
+				obj.setMessage(message);
+				obj.setTitle("Exam Scheduled!");
+				return obj;
+			}).toList();
+			kafkaProducerService.sendNotification(NotificationConstant.COMMON_TOPIC, newlist.toString());
+
+			// .....firebase notification .....//
 
 			response.put("isActive", exam.getIsActive());
 			return new ResponseEntity<>(response, HttpStatus.OK);
@@ -741,6 +786,21 @@ public class ExamServiceImpl implements IExamService {
 		questionResponse.setQuestionContent(question.getQuestionContent());
 		questionResponse.setQuestionImage(question.getQuestionImage());
 		return questionResponse;
+	}
+
+	@Override
+	public ResponseEntity<?> getSubjectExamCount(Integer studentId) {
+
+		Map<String, Object> response = new HashMap<>();
+		Long normalExamCount = subjectExamRepo.fetchSubjectExamCount(ExamType.NORMALEXAM, studentId);
+		Long scheduleExamCount = subjectExamRepo.fetchSubjectExamCount(ExamType.SCHEDULEEXAM, studentId);
+		Long totalNormalExamCount = subjectExamRepo.fetchTotalExamCount(studentId,ExamType.NORMALEXAM);
+		Long totalScheduleExamCount = subjectExamRepo.fetchTotalExamCount(studentId,ExamType.SCHEDULEEXAM);
+		response.put("normalExamCount", normalExamCount);
+		response.put("scheduleExamCount", scheduleExamCount);
+		response.put("totalNormalCount", totalNormalExamCount);
+		response.put("totalScheduleExamCount", totalScheduleExamCount);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 }

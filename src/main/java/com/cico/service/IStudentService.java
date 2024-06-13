@@ -118,4 +118,8 @@ public interface IStudentService {
 
 	public ResponseEntity<?> allFeesRemainingStudent();
 
+	public ResponseEntity<?> updateFcmId(HttpHeaders header, String fcmId);
+
+	public ResponseEntity<?> getTaskStatics(Integer studentId);
+
 }
