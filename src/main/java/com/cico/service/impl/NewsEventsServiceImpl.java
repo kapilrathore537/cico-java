@@ -3,7 +3,6 @@ package com.cico.service.impl;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,9 +24,6 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 	@Autowired
 	private NewsEventsRepository newsEventsRepository;
 
-//	@Value("${newsEventsImages}")
-//	private String filePath;
-
 	@Autowired
 	private IFileService fileService;
 
@@ -37,7 +33,7 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 		NewsEvents newsEvents = new NewsEvents();
 
 		if (file != null && !file.isEmpty()) {
-			newsEvents.setImage(fileService.uploadFileInFolder(file,AppConstants.NEWS_AND_EVENT_IMAGES));
+			newsEvents.setImage(fileService.uploadFileInFolder(file, AppConstants.NEWS_AND_EVENT_IMAGES));
 		}
 		newsEvents.setShortDescription(shortDescription);
 		newsEvents.setBriefDescription(briefDescription);
@@ -67,28 +63,22 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 	@Override
 	public NewsEvents updateNewsEvents(Integer id, String shortDescription, String briefDescription, String title,
 			MultipartFile file) {
-		
+
 		NewsEvents newsEvents = newsEventsRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 
 		if (shortDescription != null)
 			newsEvents.setShortDescription(shortDescription);
-		else
-			newsEvents.setShortDescription(newsEvents.getShortDescription());
 
 		if (briefDescription != null)
 			newsEvents.setBriefDescription(briefDescription);
-		else
-			newsEvents.setBriefDescription(newsEvents.getBriefDescription());
 
 		if (title != null)
 			newsEvents.setTitle(title);
-		else
-			newsEvents.setTitle(newsEvents.getTitle());
 
 		if (file != null && !file.isEmpty()) {
 			newsEvents.setImage(fileService.uploadFileInFolder(file, AppConstants.NEWS_AND_EVENT_IMAGES));
-		}else {
+		} else {
 			newsEvents.setImage("");
 		}
 
@@ -119,9 +109,7 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 
 		int check = newsEventsRepository.updateActiveAndInActiveNewsAndEvent(!newsEvents.getIsActive(), id);
-		if (check != 0)
-			return true;
-		return false;
+		return check!=0?true:false;
 	}
 
 	@Override

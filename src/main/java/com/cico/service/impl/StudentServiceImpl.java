@@ -90,10 +90,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private StudentRepository studRepo;
-
-	@Autowired
-	private FeesRepository feesRepo;
-
+	
 	@Autowired
 	private CourseRepository courseRepository;
 
@@ -121,11 +118,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private ModelMapper mapper;
 
-//	@Value("${fileUploadPath}")
-//	private String IMG_UPLOAD_DIR;
-//
-//	@Value("${workReportUploadPath}")
-//	private String WORK_UPLOAD_DIR;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;

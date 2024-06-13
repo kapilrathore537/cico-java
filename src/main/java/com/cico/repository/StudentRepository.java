@@ -45,12 +45,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT NEW com.cico.payload.OnLeavesResponse(l.leaveDate, l.leaveEndDate, s.profilePic, s.applyForCourse, s.studentId, s.fullName) FROM Leaves l JOIN Student s ON s.studentId = l.studentId WHERE l.leaveStatus = 1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)")
 	Page<OnLeavesResponse> getTotalStudentInLeaves(PageRequest pageRequest);
 
-//	@Query("SELECT NEW com.cico.payload.TodayLeavesRequestResponse( l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic, s.applyForCourse, "
-//			+ "l.leaveTypeId, l.leaveDuration, l.leaveReason, l.leaveId, lt.leaveTypeName )" + "FROM Leaves l "
-//			+ "INNER JOIN Student s ON l.studentId = s.studentId "
-//			+ "INNER JOIN LeaveType lt ON l.leaveTypeId = lt.leaveTypeId "
-//			+ "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate")
-	//
 	@Query("SELECT NEW com.cico.payload.TodayLeavesRequestResponse("
 			+ "l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic, s.applyForCourse, "
 			+ "l.leaveTypeId, l.leaveDuration, l.leaveReason, l.leaveId, lt.leaveTypeName ) " + "FROM Leaves l "

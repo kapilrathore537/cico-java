@@ -33,12 +33,9 @@ public class JobAlertServiceImpl implements IJobAlertService {
 	@Autowired
 	private JobAlertRepository repository;
 
-//	@Value("${jobAlertImages}")
-//	private String IMG_UPLOAD_DIR;
-
 	@Autowired
 	private ITechnologyStackService technologyStackService;
-	
+
 	@Autowired
 	private ModelMapper mapper;
 
@@ -67,40 +64,26 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public JobAlert update(Integer jobId, String jobTitle, String jobDescription, String companyName,
-			String experienceRequired, String technicalSkills,String jobPackage,String type, Integer technologyStackId) {
+			String experienceRequired, String technicalSkills, String jobPackage, String type,
+			Integer technologyStackId) {
 		JobAlert alert = new JobAlert();
 		Optional<JobAlert> findById = repository.findById(jobId);
 		alert = findById.get();
 
-		if (jobTitle != null) {
+		if (jobTitle != null)
 			alert.setJobTitle(jobTitle);
-		} else {
-			alert.setJobTitle(alert.getJobTitle());
-		}
-		if (jobDescription != null) {
+
+		if (jobDescription != null)
 			alert.setJobDescription(jobDescription);
-		} else {
-			alert.setJobDescription(alert.getJobDescription());
 
-		}
-		if (companyName != null) {
+		if (companyName != null)
 			alert.setCompanyName(companyName);
-		} else {
-			alert.setCompanyName(alert.getCompanyName());
 
-		}
-		if (experienceRequired != null) {
+		if (experienceRequired != null)
 			alert.setExperienceRequired(experienceRequired);
-		} else {
-			alert.setExperienceRequired(alert.getExperienceRequired());
 
-		}
-		if (technicalSkills != null) {
+		if (technicalSkills != null)
 			alert.setTechnicalSkills(technicalSkills);
-		} else {
-			alert.setTechnicalSkills(alert.getTechnicalSkills());
-
-		}
 
 		if (technologyStackId != null) {
 			TechnologyStack technologyStack = technologyStackService.getTechnologyStack(technologyStackId);
@@ -124,68 +107,60 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	}
 
-	
-
 	@Override
 	public List<JobAlert> searchJob(String field, String role) {
-
-		if (role.equalsIgnoreCase("student"))
-			return repository.jobSearchStudent(field);
-		else
-			return repository.jobSearchAdmin(field);
-
+		return role.equalsIgnoreCase("student") == true ? repository.jobSearchStudent(field)
+				: repository.jobSearchAdmin(field);
 	}
 
 	@Override
 	public JobAlert activeJob(Integer jobId) {
-		System.out.println(jobId);
 		JobAlert jobAlert = repository.findById(jobId)
 				.orElseThrow(() -> new ResourceNotFoundException("Job not found !!"));
-		if (jobAlert.getIsActive()) {
-			jobAlert.setIsActive(false);
-		} else {
-			jobAlert.setIsActive(true);
-		}
+
+		jobAlert.setIsActive(!jobAlert.getIsActive());
+
 		return repository.save(jobAlert);
 	}
 
 	@Override
 	public PageResponse<JobAlertResponse> getAllJobsAndIntership(Integer page, Integer size) {
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "jobId");
-		Page<JobAlert> jobAlert = repository.findAllByIsDeleted( false,pageable);
-		if(jobAlert.getNumberOfElements()==0) {
-			return new PageResponse<>(Collections.emptyList(),jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
-					jobAlert.getTotalPages(), jobAlert.isLast());
+		Page<JobAlert> jobAlert = repository.findAllByIsDeleted(false, pageable);
+		if (jobAlert.getNumberOfElements() == 0) {
+			return new PageResponse<>(Collections.emptyList(), jobAlert.getNumber(), jobAlert.getSize(),
+					jobAlert.getTotalElements(), jobAlert.getTotalPages(), jobAlert.isLast());
 		}
-		List<JobAlertResponse> alertResponses = Arrays.asList(mapper.map(jobAlert.getContent(), JobAlertResponse[].class));
-		
-		return new PageResponse<>(alertResponses,jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
+		List<JobAlertResponse> alertResponses = Arrays
+				.asList(mapper.map(jobAlert.getContent(), JobAlertResponse[].class));
+
+		return new PageResponse<>(alertResponses, jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
 				jobAlert.getTotalPages(), jobAlert.isLast());
 	}
-	
+
 	@Override
-	public PageResponse<JobAlertResponse> getAllJobAlert(int page,int size,String type)
-	{
+	public PageResponse<JobAlertResponse> getAllJobAlert(int page, int size, String type) {
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "type");
-		Page<JobAlert> jobAlert = repository.findAllByTypeAndIsDeletedAndIsActive(type, false, true,pageable);
-		if(jobAlert.getNumberOfElements()==0) {
-			return new PageResponse<>(Collections.emptyList(),jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
-					jobAlert.getTotalPages(), jobAlert.isLast());
+		Page<JobAlert> jobAlert = repository.findAllByTypeAndIsDeletedAndIsActive(type, false, true, pageable);
+		if (jobAlert.getNumberOfElements() == 0) {
+			return new PageResponse<>(Collections.emptyList(), jobAlert.getNumber(), jobAlert.getSize(),
+					jobAlert.getTotalElements(), jobAlert.getTotalPages(), jobAlert.isLast());
 		}
-		List<JobAlertResponse> alertResponses = Arrays.asList(mapper.map(jobAlert.getContent(), JobAlertResponse[].class));
-		
-		return new PageResponse<>(alertResponses,jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
+		List<JobAlertResponse> alertResponses = Arrays
+				.asList(mapper.map(jobAlert.getContent(), JobAlertResponse[].class));
+
+		return new PageResponse<>(alertResponses, jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
 				jobAlert.getTotalPages(), jobAlert.isLast());
 	}
 
 	@Override
 	public ApiResponse update(JobAlert jobAlert) {
-		System.out.println(jobAlert);
+	
 		JobAlert save = repository.save(jobAlert);
-		if(Objects.nonNull(save))
+		if (Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
-		
+
 	}
 
 }

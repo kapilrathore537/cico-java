@@ -106,7 +106,6 @@ public class SubjectServiceImpl implements ISubjectService {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}
 
-
 		if (subject != null) {
 			subject.setSubjectName(subjectResponse.getSubjectName());
 			subject.setTechnologyStack(
@@ -197,17 +196,18 @@ public class SubjectServiceImpl implements ISubjectService {
 
 		Course course = studentRepository.findById(studentId).get().getCourse();
 
-		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
-
-		List<Subject> list = subjects.stream().filter(obj -> obj.getIsDeleted() == false).collect(Collectors.toList());
+		List<Subject> list = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects().parallelStream()
+				.filter(obj -> !obj.getIsDeleted()).toList();
+		
+		if (list.isEmpty())
+			new ResourceNotFoundException("No subject available");
 
 		List<SubjectResponse> responseSend = new ArrayList<>();
 
 		for (Subject s : list) {
 
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount((long) (s.getChapters().stream().filter(obj -> obj.getIsDeleted() == false)
-					.collect(Collectors.toList()).size()));
+			response.setChapterCount((long) (s.getChapters().stream().filter(obj ->!obj.getIsDeleted())).toList().size());
 			TechnologyStackResponse stackResponse = new TechnologyStackResponse();
 			stackResponse.setId(s.getTechnologyStack().getId());
 			stackResponse.setImageName(s.getTechnologyStack().getImageName());
@@ -220,9 +220,6 @@ public class SubjectServiceImpl implements ISubjectService {
 			responseSend.add(response);
 
 		}
-
-		if (subjects.isEmpty())
-			new ResourceNotFoundException("No subject available");
 
 		return responseSend;
 

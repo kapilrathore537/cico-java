@@ -22,19 +22,12 @@ public interface IQuestionService {
 
 	void updateQuestionStatus(Integer questionId);
 
-	List<Question> getAllQuestions();
-
-	List<Question> getQuestionsByExam(Integer examId);
-
-	Question getQuestionById(Integer questionId); // running
+	Question getQuestionById(Integer questionId); 
 
 	Question addQuestionToSubjectExam(Integer subjectId, String questionContent, String option1, String option2,
 			String option3, String option4, MultipartFile image, String correctOption);
 
 	ResponseEntity<?> getAllSubjectQuestionForTest(Integer examId,Integer studentId);
-
-	ResponseEntity<?> getAllSubjectExam(Integer studentId);
-
 
 	Map<String, Object> getAllSubjectQuestionBySubjectId(Integer subjectId);
 

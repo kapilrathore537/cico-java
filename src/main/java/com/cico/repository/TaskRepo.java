@@ -13,9 +13,7 @@ import com.cico.model.Subject;
 import com.cico.model.Task;
 import com.cico.payload.AssignmentAndTaskSubmission;
 import com.cico.payload.AssignmentSubmissionResponse;
-import com.cico.payload.TaskResponse;
 import com.cico.payload.TaskStatusSummary;
-import com.cico.payload.TaskSubmissionResponse;
 import com.cico.util.SubmissionStatus;
 
 public interface TaskRepo extends JpaRepository<Task, Long> {

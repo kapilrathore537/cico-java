@@ -155,15 +155,6 @@ public class TaskServiceImpl implements ITaskService {
 		return res;
 	}
 
-	@Override
-	public List<Task> getAllTask() {
-//		List<Task> list = taskRepo.findAll();
-//		if (list.isEmpty())
-//			throw new ResourceNotFoundException("Task not Found");
-//		else
-//			return taskre(list);
-		return null;
-	}
 
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
