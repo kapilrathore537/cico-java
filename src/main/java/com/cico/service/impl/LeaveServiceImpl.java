@@ -22,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceAlreadyExistException;
-import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.LeaveType;
 import com.cico.model.Leaves;
 import com.cico.model.Student;

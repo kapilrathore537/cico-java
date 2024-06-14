@@ -38,9 +38,6 @@ public class JobAlertServiceImpl implements IJobAlertService {
 	@Autowired
 	private JobAlertRepository repository;
 
-//	@Value("${jobAlertImages}")
-//	private String IMG_UPLOAD_DIR;
-
 	@Autowired
 	private ITechnologyStackService technologyStackService;
 
@@ -141,24 +138,17 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public List<JobAlert> searchJob(String field, String role) {
-
-		if (role.equalsIgnoreCase("student"))
-			return repository.jobSearchStudent(field);
-		else
-			return repository.jobSearchAdmin(field);
-
+		return role.equalsIgnoreCase("student") == true ? repository.jobSearchStudent(field)
+				: repository.jobSearchAdmin(field);
 	}
 
 	@Override
 	public JobAlert activeJob(Integer jobId) {
-		System.out.println(jobId);
 		JobAlert jobAlert = repository.findById(jobId)
 				.orElseThrow(() -> new ResourceNotFoundException("Job not found !!"));
-		if (jobAlert.getIsActive()) {
-			jobAlert.setIsActive(false);
-		} else {
-			jobAlert.setIsActive(true);
-		}
+
+		jobAlert.setIsActive(!jobAlert.getIsActive());
+
 		return repository.save(jobAlert);
 	}
 
@@ -179,6 +169,7 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public PageResponse<JobAlertResponse> getAllJobAlert(int page, int size, JobType type) {
+
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "type");
 		Page<JobAlert> jobAlert = repository.findAllByTypeAndIsDeletedAndIsActive(type, false, true, pageable);
 		if (jobAlert.getNumberOfElements() == 0) {
@@ -194,7 +185,7 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public ApiResponse update(JobAlert jobAlert) {
-		System.out.println(jobAlert);
+	
 		JobAlert save = repository.save(jobAlert);
 		if (Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);

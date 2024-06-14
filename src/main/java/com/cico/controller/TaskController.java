@@ -35,24 +35,11 @@ public class TaskController {
 		return taskService.createTask(taskRequest);
 	}
 
-//	@PutMapping("/updateTaskStatus")
-//	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId) {
-//		taskService.updateTaskStatus(taskId);
-//		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
-//	}
-
 	@GetMapping("/getTaskById")
 	public ResponseEntity<?> getTaskById(@RequestParam("taskId") Long taskId) {
 		return this.taskService.getTaskById(taskId);
 
 	}
-
-	@GetMapping("/getAllTask")
-	public ResponseEntity<List<Task>> getAllTask() {
-		List<Task> tasks = taskService.getAllTask();
-		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
-	}
-
 	@GetMapping("/getAllTaskOfStudent")
 	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId") Integer studentId,@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
 		return taskService.getAllTaskOfStudent(studentId,pageNumber,pageSise);
