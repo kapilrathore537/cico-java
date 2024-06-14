@@ -92,11 +92,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private StudentRepository studRepo;
-<<<<<<< HEAD
-	
-=======
-
->>>>>>> 025bee8630ac7e935f5e771ee1e56ec030385b05
 	@Autowired
 	private CourseRepository courseRepository;
 
@@ -124,10 +119,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private ModelMapper mapper;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 025bee8630ac7e935f5e771ee1e56ec030385b05
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 

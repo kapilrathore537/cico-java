@@ -115,18 +115,18 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 			// fetching all the fcmId
 			// sending message via kafka to firebase PUSH NOTIFICATION
-			List<NotificationInfo> fcmIds = studentRepository
-					.findAllFcmIdByCourseId(assignment.getCourse().getCourseId());
-
-			String message = String.format("A new assignment %s has been assigned. Please review and get started.",
-					savedAssignment.getTitle());
-
-			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
-				obj1.setMessage(message);
-				return obj1;
-			}).toList();
-
-			kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
+//			List<NotificationInfo> fcmIds = studentRepository
+//					.findAllFcmIdByCourseId(assignment.getCourse().getCourseId());
+//
+//			String message = String.format("A new assignment %s has been assigned. Please review and get started.",
+//					savedAssignment.getTitle());
+//
+//			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
+//				obj1.setMessage(message);
+//				return obj1;
+//			}).toList();
+//
+//			kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
 
 			// .... firebase notification ....//
 
