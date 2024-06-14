@@ -54,5 +54,6 @@ public class Assignment {
 	private Boolean isActive = Boolean.TRUE;
 
 	private LocalDateTime createdDate;
+	private Boolean isNotificatioSend;
 
 }

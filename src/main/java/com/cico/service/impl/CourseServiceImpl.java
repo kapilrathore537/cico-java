@@ -168,16 +168,7 @@ public class CourseServiceImpl implements ICourseService {
 		res.setTechnologyStack(stackResponse2);
 		return res;
 	}
-//
-//	public Course findCourseById(Integer courseId) {
-//		
-//		Optional<Course> findById = courseRepository.findByCourseId(courseId);
-//		if (!findById.isPresent()) {
-//			throw new ResourceNotFoundException("Course is not found from given Id");
-//		}
-//
-//		return findById.get();
-//	}
+
 
 	@Override
 	public ResponseEntity<?> getAllCourses(Integer page, Integer size) {
@@ -225,19 +216,18 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ApiResponse updateCourse(CourseRequest course) {
-		
+
 		Course course1 = courseRepository.findById(course.getCourseId()).get();
-		if(course1==null) {
+		if (course1 == null) {
 			throw new ResourceNotFoundException("Course not found.");
 		}
-		
-		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(course.getCourseName());
-		
 
-		if (isPresent != null &&  isPresent.getCourseId() !=course1.getCourseId()) {
+		Course isPresent = courseRepository.findByCourseNameAndIsDeletedFalse(course.getCourseName());
+
+		if (isPresent != null && isPresent.getCourseId() != course1.getCourseId()) {
 			throw new ResourceAlreadyExistException("Course already exist with this name.");
 		}
-	
+
 		course1.setCourseName(course.getCourseName());
 		course1.setCourseFees(course.getCourseFees());
 		course1.setDuration(course.getDuration());
@@ -250,9 +240,7 @@ public class CourseServiceImpl implements ICourseService {
 		Course save = courseRepository.save(course1);
 
 		if (Objects.nonNull(save)) {
-
 			return new ApiResponse(Boolean.TRUE, COURSE_UPDATE_SUCCESS, HttpStatus.CREATED);
-
 		}
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 
@@ -374,7 +362,6 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ResponseEntity<?> getAllStarterCourses() {
-		// TODO Auto-generated method stub
 		List<Object[]> allNonStarterCourses = courseRepository.getAllStarterCourses();
 		List<CourseResponse> list = new ArrayList<>();
 		Map<String, Object> response = new HashMap<>();

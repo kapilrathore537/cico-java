@@ -2,6 +2,7 @@ package com.cico.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,18 +101,6 @@ public class TaskServiceImpl implements ITaskService {
 		response.put(AppConstants.MESSAGE, AppConstants.CREATE_SUCCESS);
 		response.put("taskId", newTask.getTaskId());
 
-		// fetching all the fcmId
-		// sending message via kafka to firebase
-		List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(task.getCourse().getCourseId());
-		String message = String.format("A new task %s has been assigned. Please review and get started.",
-                newTask.getTaskName());
-
-		List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj -> {
-			obj.setMessage(message);
-			return obj;
-		}).toList();
-		kafkaProducerService.sendNotification(NotificationConstant.TASK_TOPIC, newlist.toString());
-
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -172,17 +161,6 @@ public class TaskServiceImpl implements ITaskService {
 		res.setSubject(sr);
 		res.setCourse(cr);
 		return res;
-	}
-
-	@Override
-	public List<Task> getAllTask() {
-		List<Task> list = taskRepo.findAll();
-//		System.err.println(list.toString()+"cxvdsvdvsv");
-//		if (list.isEmpty())
-//			throw new ResourceNotFoundException("Task not Found");
-//		else
-//			return taskre(list);
-		return null;
 	}
 
 	@Override
@@ -299,39 +277,37 @@ public class TaskServiceImpl implements ITaskService {
 
 		TaskSubmissionResponse response = new TaskSubmissionResponse();
 
-	//	Optional<String> taskName = taskRepo.fetchTaskNameByTaskSubmissionId(res.get().getId());
+		Optional<String> taskName = taskRepo.fetchTaskNameByTaskSubmissionId(res.get().getId());
+
 		TaskSubmission updateSubmitTaskStatus = new TaskSubmission();
 
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
-			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
-					SubmissionStatus.Reviewing, review);
+			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
-			String.format("Your %s task has been accepted. Thank you for your submission.", "");
-			 taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
-					SubmissionStatus.Accepted, review);
+			String.format("Your %s task has been accepted. Thank you for your submission.", taskName.get());
+			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
-			String.format("Your %s task has been rejected.", "");
-			taskSubmissionRepository.updateSubmitTaskStatus(submissionId,
-					SubmissionStatus.Rejected, review);
+			String.format("Your %s task has been rejected.", taskName.get());
+			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Rejected, review);
 		}
 
-//		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
-//		response.setId(updateSubmitTaskStatus.getId());
-//		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
-//		response.setReview(updateSubmitTaskStatus.getReview());
-//		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
-//		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
-//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
-//		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
+		response.setId(updateSubmitTaskStatus.getId());
+		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
+		response.setReview(updateSubmitTaskStatus.getReview());
+		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
+		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
+		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
 
-//		if (taskName.isPresent()) {
-//			// fetching all the fcmId
-//			// sending message via kafka to firebase
-//			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
-//			fcmIds.setMessage(message);
-//			fcmIds.setTitle("Submission updates!");
-//			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
-//		}
+		if (taskName.isPresent()) {
+			// fetching all the fcmId
+			// sending message via kafka to firebase
+			NotificationInfo fcmIds = studentRepository.findFcmIdByStudentId(res.get().getStudent().getStudentId());
+			fcmIds.setMessage(message);
+			fcmIds.setTitle("Submission updates!");
+			kafkaProducerService.sendNotification(NotificationConstant.TASK_STATUS_TOPIC, fcmIds.toString());
+		}
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -565,18 +541,29 @@ public class TaskServiceImpl implements ITaskService {
 			taskRepo.save(task.get());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
-
 		throw new ResourceNotFoundException("Task not found");
-
 	}
 
 	@Override
 	public ResponseEntity<?> activateTask(Long id) {
+
 		Task task = taskRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
-		if (task.getIsActive())
-			task.setIsActive(false);
-		else
-			task.setIsActive(true);
+		task.setIsActive(!task.getIsActive());
+
+		if (task.getIsActive()) {
+			// fetching all the fcmId
+			// sending message via kafka to firebase
+			List<NotificationInfo> fcmIds = studentRepository.findAllFcmIdByCourseId(task.getCourse().getCourseId());
+			String message = String.format("A new task %s has been assigned. Please review and get started.",
+					task.getTaskName());
+
+			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj -> {
+				obj.setMessage(message);
+				obj.setTitle("New task assign");
+				return obj;
+			}).toList();
+			kafkaProducerService.sendNotification(NotificationConstant.TASK_TOPIC, newlist.toString());
+		}
 
 		Map<String, Object> res = new HashMap<>();
 		res.put(AppConstants.STATUS, taskRepo.save(task).getIsActive());
