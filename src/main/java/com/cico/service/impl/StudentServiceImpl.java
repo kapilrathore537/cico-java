@@ -1117,7 +1117,6 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { // working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
@@ -1454,8 +1453,6 @@ public class StudentServiceImpl implements IStudentService {
 
 		int sundays = 0;
 
-		System.out.println(totalDays);
-
 		for (int day = 1; day <= totalDays; day++) {
 			LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, day);
 			if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -1475,9 +1472,6 @@ public class StudentServiceImpl implements IStudentService {
 		Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
 		Long onLeaveStudents = leaveRepository.countLeaveStudentsByMonth(month);
 		Long totalStudents = studRepo.countTotalStudents();
-
-		System.out.println(totalStudents);
-
 		Map<String, Integer> map2 = countTotalDaysInMonth(month);
 		Integer sundays = map2.get("Sundays");
 		Integer totalDays = map2.get("TotalDays");
@@ -1495,11 +1489,11 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key) {
-		System.out.println(key);
+
 		List<StudentPresentAndEarlyCheckOut> studentsPresentAndEarlyCheckout = new ArrayList<>();
 		if (key.equals("Present")) {
 			List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
-			System.out.println(todaysPresents);
+
 			for (Object[] row : todaysPresents) {
 				StudentPresentAndEarlyCheckOut student = new StudentPresentAndEarlyCheckOut();
 				student.setFullName((String) row[0]);
@@ -1534,7 +1528,7 @@ public class StudentServiceImpl implements IStudentService {
 			currentDate = LocalDate.now();
 		else
 			currentDate = LocalDate.parse(date);
-		System.out.println(currentDate);
+
 		List<Object[]> dataForTv = studRepo.getStudentAttendanceDataForTv(currentDate);
 		List<StudentTvResponse> tvResponse = new ArrayList<>();
 		for (Object[] row : dataForTv) {
@@ -1560,13 +1554,14 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(Integer year) {
 		List<Object[]> monthwiseAdmissionCount = studRepo.getMonthwiseAdmissionCountForYear(year);
-		Map<Integer, Long> response = new HashMap<>();
+		Long[] months = new Long[12];
+		Arrays.fill(months, 0L);
 		for (Object[] object : monthwiseAdmissionCount) {
 			int monthNumber = ((Number) object[0]).intValue();
 			Long admissionCount = ((Long) object[1]);
-			response.put(monthNumber, admissionCount);
+			months[monthNumber - 1] = admissionCount;
 		}
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		return new ResponseEntity<>(months, HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId) {
@@ -1946,9 +1941,9 @@ public class StudentServiceImpl implements IStudentService {
 		Arrays.fill(totalSubmitted, 0L); // Initialize the days array with zeros
 		Arrays.fill(totalRejected, 0L);
 		Arrays.fill(totalAccepted, 0L);
-		
+
 		for (int i = 0; i < currentMonthLength; i++) {
-		    categories[i] = (long) (i + 1); // Assigning values from 1 to currentMonthLength
+			categories[i] = (long) (i + 1); // Assigning values from 1 to currentMonthLength
 		}
 		data.forEach(d -> {
 			// Assuming the data format is [dayOfMonth, taskCount]
@@ -1962,7 +1957,6 @@ public class StudentServiceImpl implements IStudentService {
 			totalRejected[(int) (dayOfMonth - 1)] = (Long) d[3];
 
 		});
-		
 
 		response.put("totalSubmitted", totalSubmitted);
 		response.put("totalAccepted", totalAccepted);

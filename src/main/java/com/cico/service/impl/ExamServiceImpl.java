@@ -171,7 +171,6 @@ public class ExamServiceImpl implements IExamService {
 				response.put(AppConstants.MESSAGE, AppConstants.SORRY_EXAM_END);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-
 		}
 		Optional<SubjectExamResult> result = subjectExamResultRepo.findByExamIdAndStudentId(request.getExamId(),
 				student);
@@ -433,12 +432,9 @@ public class ExamServiceImpl implements IExamService {
 			// ensuring!. checking exam time not under previous exam duration time
 			SubjectExam latestExam = subjectExamRepo.findLatestExam();
 
-			System.err.println(latestExam);
-			
 			if (latestExam != null && subject.getExams().contains(latestExam)) {
 				
-				System.err.println(latestExam);
-
+			
 				LocalDateTime actuallatestExamTime = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),
 						latestExam.getExamStartTime());
 				LocalDateTime latestExamTimeWithDuration = changeIntoLocalDateTime(latestExam.getScheduleTestDate(),

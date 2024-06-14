@@ -12,13 +12,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.config.AppUtils;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.kafkaServices.KafkaProducerService;
@@ -110,25 +108,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			Assignment savedAssignment = assignmentRepository.save(assignment);
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			response.put("assignmentId", savedAssignment.getId());
-
-			// .... firebase notification ....//
-
-			// fetching all the fcmId
-			// sending message via kafka to firebase PUSH NOTIFICATION
-//			List<NotificationInfo> fcmIds = studentRepository
-//					.findAllFcmIdByCourseId(assignment.getCourse().getCourseId());
-//
-//			String message = String.format("A new assignment %s has been assigned. Please review and get started.",
-//					savedAssignment.getTitle());
-//
-//			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
-//				obj1.setMessage(message);
-//				return obj1;
-//			}).toList();
-//
-//			kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
-
-			// .... firebase notification ....//
 
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		} else {
@@ -344,7 +323,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		for (int i = 0; i < allAssignment.size(); i++) {
 			Assignment assignment = allAssignment.get(i);
-			List<AssignmentSubmission> submittedAssignment = assignment.getAssignmentQuestion().stream()
+			List<AssignmentSubmission> submittedAssignment = assignment.getAssignmentQuestion().parallelStream()
 					.flatMap(question -> question.getAssignmentSubmissions().stream()
 							.filter(submission -> submission.getStudent().getStudentId() == studentId))
 					.collect(Collectors.toList());
@@ -440,10 +419,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 //		return ResponseEntity.ok(convertListToPage);
 
 /////////////////////////////////////////////////////////////////////////////////////
-	
+
 		Page<AssignmentAndTaskSubmission> res = assignmentRepository.findAllAssignmentStatusWithCourseIdAndSubjectId(
 				courseId, subjectId, PageRequest.of(pageNumber, pageSize));
-		
+
 		return ResponseEntity.ok(res);
 	}
 
@@ -605,11 +584,30 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> activateAssignment(Long id) {
+
 		Assignment assigment = checkIsPresent(id);
-		if (assigment.getIsActive())
-			assigment.setIsActive(false);
-		else
-			assigment.setIsActive(true);
+
+		assigment.setIsActive(!assigment.getIsActive());
+
+		if (assigment.getIsActive()) {
+
+			// .... firebase notification ....//
+			// fetching all the fcmId
+			// sending message via kafka to firebase PUSH NOTIFICATION
+			List<NotificationInfo> fcmIds = studentRepository
+					.findAllFcmIdByCourseId(assigment.getCourse().getCourseId());
+			String message = String.format("A new assignment %s has been assigned. Please review and get started.",
+					assigment.getTitle());
+
+			List<NotificationInfo> newlist = fcmIds.stream().parallel().map(obj1 -> {
+				obj1.setMessage(message);
+				obj1.setTitle("New assignment assign");
+				return obj1;
+			}).toList();
+
+			kafkaProducerService.sendNotification(NotificationConstant.ASSIGNMENT_TOPIC, newlist.toString());
+			// .... firebase notification ....//
+		}
 		Map<String, Object> res = new HashMap<>();
 		res.put(AppConstants.STATUS, assignmentRepository.save(assigment).getIsActive());
 		return new ResponseEntity<>(res, HttpStatus.OK);
