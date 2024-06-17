@@ -47,11 +47,11 @@ public class TaskController {
 
 	}
 
-	@GetMapping("/getAllTask")
-	public ResponseEntity<List<Task>> getAllTask() {
-		List<Task> tasks = taskService.getAllTask();
-		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
-	}
+//	@GetMapping("/getAllTask")
+//	public ResponseEntity<List<Task>> getAllTask() {
+//		List<Task> tasks = taskService.getAllTask();
+//		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+//	}
 
 	@GetMapping("/getAllTaskOfStudent")
 	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId") Integer studentId,@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
