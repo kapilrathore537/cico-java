@@ -22,6 +22,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
+    
+  credentials:
+  username: kapil537
+  password: Kapil@537
+  
   kafka:
     consumer:
       bootstrap-servers: localhost:9092
