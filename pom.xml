@@ -12,7 +12,7 @@
 	<groupId>com.cico</groupId>
 	<artifactId>cicosmarttracko</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>CicoSmartTracko</name>
 	<description>Project for checkIn and checkOut</description>
 	<properties>
@@ -182,7 +182,7 @@
 							<password>Kapil@123</password>
 						</auth>
 						<image>
-							docker.io/kapil537/cico-${project.artifactId}</image>
+							docker.io/kapil537/cico</image>
 					</to>
 				</configuration>
 			</plugin>
