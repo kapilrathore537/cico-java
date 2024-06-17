@@ -10,8 +10,10 @@ services:
     ports:
       - 3307:3306
    
+
    
    # myswl image local this config used in properties file    
+
   authentication:
     image: kapil537/cico:latest
     container_name: CICO
@@ -25,10 +27,13 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root
+
       MYSQL_PASSWORD: root	
       
       
-  
+
+          
+
 #Zookeeper Image Configuration
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
