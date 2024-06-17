@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cico</groupId>
-	<artifactId>CicoSmartTracko</artifactId>
+	<artifactId>cicosmarttracko</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>CicoSmartTracko</name>
 	<description>Project for checkIn and checkOut</description>
 	<properties>
@@ -166,6 +166,28 @@
 					</jvmArguments>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+					<from>
+						<auth>
+							<username>kapil537</username>
+							<password>Kapil@123</password>
+						</auth>
+						<image>eclipse-temurin:17.0.4.1_1-jre</image>
+					</from>
+					<to>
+						<auth>
+							<username>kapil537</username>
+							<password>Kapil@123</password>
+						</auth>
+						<image>
+							docker.io/kapil537/cico-${project.artifactId}</image>
+					</to>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>
@@ -198,7 +220,7 @@
 		<pluginRepository>
 			<id>spring-snapshots</id>
 			<name>Spring Snapshots</name>
-			<url>https://repo.spring.io/snapshot</url>
+			<url>https://repo.spring.io /snapshot</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
