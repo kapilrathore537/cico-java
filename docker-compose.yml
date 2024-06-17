@@ -10,6 +10,7 @@ services:
       - 3307:3306
    
       
+
   authentication:
     image: kapil537/cico:latest
     container_name: CICO
