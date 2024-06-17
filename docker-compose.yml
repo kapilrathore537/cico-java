@@ -9,7 +9,7 @@ services:
       - "3307:3306"
       
   cico:
-    image: kapil537/cico-cicosmarttracko:latest
+    image: kapil537/cico:latest
     container_name: cico
     depends_on:
       - mysql
