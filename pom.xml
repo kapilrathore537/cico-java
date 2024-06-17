@@ -19,6 +19,7 @@
 		<java.version>17</java.version>
 		<start-class>com.cico.CicoSmartTrackoApplication</start-class>
 	</properties>
+	
 	<dependencies>
 
 		<dependency>
@@ -171,22 +172,28 @@
 				<configuration>
 					<from>
 						<auth>
-							<username>kapil537</username>
-							<password>Kapil@123</password>
+							<username>${credentials.username}</username>
+							<password>${credentials.password}</password>
 						</auth>
 						<image>eclipse-temurin:17.0.4.1_1-jre</image>
 					</from>
 					<to>
 						<auth>
-							<username>kapil537</username>
-							<password>Kapil@123</password>
+							<username>${credentials.username}</username>
+							<password>${credentials.password}</password>
 						</auth>
 						<image>
-							docker.io/kapil537/cico</image>
+							docker.io/<username>${credentials.username}</username>/cico</image>
 					</to>
 				</configuration>
 			</plugin>
 		</plugins>
+		 <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+        </resource>
+    </resources>
 	</build>
 	<repositories>
 		<repository>
@@ -224,5 +231,4 @@
 			</releases>
 		</pluginRepository>
 	</pluginRepositories>
-
 </project>
