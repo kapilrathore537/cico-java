@@ -67,7 +67,7 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
+		<dependency>	
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
@@ -77,8 +77,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
@@ -164,6 +162,28 @@
 					<jvmArguments>
 						<jvmArgument>--add-opens=java.base/java.time=ALL-UNNAMED</jvmArgument>
 					</jvmArguments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+					<from>
+						<auth>
+							<username>kapil537</username>
+							<password>Kapil@123</password>
+						</auth>
+						<image>eclipse-temurin:17.0.4.1_1-jre</image>
+					</from>
+					<to>
+						<auth>
+							<username>kapil537</username>
+							<password>Kapil@123</password>
+						</auth>
+						<image>
+							docker.io/kapil537/cico-${project.artifactId}</image>
+					</to>
 				</configuration>
 			</plugin>
 		</plugins>

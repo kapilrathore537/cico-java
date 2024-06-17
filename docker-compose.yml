@@ -1,0 +1,25 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+      
+  cico:
+    image: mysql:latest
+    container_name: cico
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql 
+      SPRING_DATASOURCE_USERNAME: MYSQL_USERNAME
+      SPRING_DATASOURCE_PASSWORD: MYSQL_PASSWORD
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+ 
+
+
