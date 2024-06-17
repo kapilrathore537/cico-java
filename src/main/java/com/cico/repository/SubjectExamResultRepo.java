@@ -16,6 +16,5 @@ public interface SubjectExamResultRepo extends JpaRepository<SubjectExamResult, 
 	@Query("SELECT s FROM  SubjectExamResult s WHERE s.student =:student  AND  s.subjectExamId =:examId ")
 	Optional<SubjectExamResult> findByExamIdAndStudentId(Integer examId, Student student);
 
-//	@Query("SELECT se FROM SubjectExam  se   JOIN  SubjectExamResult sr   WHERE sr.student =:student  AND  se.examId =:examId ")
-//	Optional<SubjectExamResult> findByExamIdAndStudentId(Integer examId, Student student);
+
 }

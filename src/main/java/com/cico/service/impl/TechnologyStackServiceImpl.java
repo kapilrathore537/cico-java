@@ -22,8 +22,6 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 	private TechnologyStackRepository technologyStackRepository;
 	@Autowired
 	private IFileService fileService;
-//	@Value("${technologyStackImages}")
-//	private String filePath;
 
 	@Override
 	public TechnologyStack createTechnologyStack(String technologyName, MultipartFile file) {

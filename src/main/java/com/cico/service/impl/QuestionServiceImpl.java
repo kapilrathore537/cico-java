@@ -28,7 +28,6 @@ import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
-import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectExamRepo;
 import com.cico.repository.SubjectRepository;
 import com.cico.service.IFileService;
@@ -253,28 +252,6 @@ public class QuestionServiceImpl implements IQuestionService {
 	}
 
 	@Override
-	public List<Question> getAllQuestions() {
-//		List<Question> questions = questionRepo.findByIsDeleted(false);
-//		if (questions.isEmpty())
-//			new ResourceNotFoundException("No question available");
-//
-//		return questions.parallelStream().filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList());
-		return null;
-	}
-
-	@Override
-	public List<Question> getQuestionsByExam(Integer examId) {
-//		Exam exam = examRepo.findByExamIdAndIsDeleted(examId, false)
-//				.orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
-//
-//		if (exam.getQuestions().isEmpty())
-//			throw new ResourceNotFoundException("No question available for Exam : " + exam.getExamName());
-//
-//		return exam.getQuestions();
-		return null;
-	}
-
-	@Override
 	public Question getQuestionById(Integer questionId) {
 		return this.questionRepo.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found with this id " + questionId));
@@ -366,11 +343,6 @@ public class QuestionServiceImpl implements IQuestionService {
 		q.setIsSelected(question.getIsSelected());
 
 		return q;
-	}
-
-	@Override
-	public ResponseEntity<?> getAllSubjectExam(Integer studentId) {
-		return null;
 	}
 
 }

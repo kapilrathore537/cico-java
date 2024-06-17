@@ -17,8 +17,6 @@ public interface ITaskService {
 	List<Task> getFilteredTasks(TaskFilterRequest taskFilter);
 
 	ResponseEntity<?> getTaskById(Long taskId);
-
-
 	
 	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription);
 

@@ -97,21 +97,4 @@ public class QuestionController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/getAllQuestions")
-	public ResponseEntity<List<Question>> getAllQuestions() {
-		List<Question> questions = questionService.getAllQuestions();
-		return ResponseEntity.ok(questions);
-	}
-
-	@GetMapping("/getQuestionsByExam")
-	public ResponseEntity<List<Question>> getQuestionsByExam(@RequestParam("examId") Integer examId) {
-		List<Question> questions = questionService.getQuestionsByExam(examId);
-		return ResponseEntity.ok(questions);
-	}
-
-	@GetMapping("/getAllSubjectExam")
-	public ResponseEntity<?> getAllSubjectExam(@RequestParam("studentId") Integer studentId) {
-		return questionService.getAllSubjectExam(studentId);
-	}
-
 }
