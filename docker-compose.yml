@@ -1,25 +1,28 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:latest
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
     ports:
-      - "3307:3306"
+      - 3307:3306
+   
       
-  cico:
+
+  authentication:
     image: kapil537/cico:latest
-    container_name: cico
-    depends_on:
+    container_name: CICO
+    restart: always
+    pull_policy: always
+    ports:
+      - 8081:8081
+    depends_on: 
       - mysql
     environment:
-      MYSQL_HOST: mysql 
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
-      MYSQL_PORT: 3306
-    ports:
-      - "8080:8081"
- 
-
-
+  
