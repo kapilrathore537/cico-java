@@ -40,6 +40,7 @@ public class TaskController {
 		return this.taskService.getTaskById(taskId);
 
 	}
+
 	@GetMapping("/getAllTaskOfStudent")
 	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId") Integer studentId,@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
 		return taskService.getAllTaskOfStudent(studentId,pageNumber,pageSise);
