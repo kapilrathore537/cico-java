@@ -183,7 +183,7 @@
 							<password>${credentials.password}</password>
 						</auth>
 						<image>
-							docker.io/<username>${credentials.username}</username>/cico</image>
+							docker.io/${credentials.username}/cico</image>
 					</to>
 				</configuration>
 			</plugin>
