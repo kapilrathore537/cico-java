@@ -83,8 +83,7 @@ public class JobAlertController {
 	public PageResponse<JobAlertResponse> getAllJobs(
 			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
-			@RequestParam("type") JobType type) {
-
+			 @RequestParam(name="type",defaultValue="JOB") JobType type) {
 		return service.getAllJobAlert(page, size, type);
 	}
 

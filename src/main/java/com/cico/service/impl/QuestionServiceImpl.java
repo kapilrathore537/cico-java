@@ -102,7 +102,7 @@ public class QuestionServiceImpl implements IQuestionService {
 	public Question addQuestionToSubjectExam(Integer subjectId, String questionContent, String option1, String option2,
 			String option3, String option4, MultipartFile image, String correctOption) {
 		Subject subject = subjectServiceImpl.checkSubjectIsPresent(subjectId);
-		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
+		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent.trim(), false);
 		if (Objects.nonNull(questionObj))
 			throw new ResourceAlreadyExistException("Question already exist");
 

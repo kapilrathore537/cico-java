@@ -71,7 +71,7 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 			+ " GROUP BY ts.submissionDate, ts.id ,t.id ")
 	List<AssignmentSubmissionResponse> getAllTaskSubmissionBYTaskId(Long taskId);
 
-	@Query(value = "SELECT t.task_name FROM Task t WHERE t.task_id = (SELECT ts.assignment_submissions_task_id FROM TaskSubmission ts WHERE ts.id =:id) ", nativeQuery = true)
+	@Query(value = "SELECT t.task_name FROM task t WHERE t.task_id = (SELECT ts.assignment_submissions_task_id FROM task_submission ts WHERE ts.id =:id) ", nativeQuery = true)
 	Optional<String> fetchTaskNameByTaskSubmissionId(@Param("id") Long id);
 
 }
