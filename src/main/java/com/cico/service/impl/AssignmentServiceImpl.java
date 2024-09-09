@@ -203,14 +203,15 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		// fetching assignment title and task Number
 		Object[] details = assignmentRepository.fetchAssignmentNameAndTaskNumberByAssignmentSubmissionId(submissionId);
 		String message = "";
+		
 		if (status.equals(SubmissionStatus.Reviewing.toString())) {
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Reviewing, review);
 		} else if (status.equals(SubmissionStatus.Accepted.toString())) {
-			message = String.format("Your task %d of assignment %s has been accepted. Thank you for your submission.",
-					details[1], details[0]);
+//			message = String.format("Your task %d of assignment %s has been accepted. Thank you for your submission.",
+//					details[1], details[0]);
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Accepted, review);
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
-			message = String.format("Your task %d of assignment %s has been rejected.", details[1], details[0]);
+//			message = String.format("Your task %d of assignment %s has been rejected.", details[1], details[0]);
 			submissionRepository.updateSubmitAssignmentStatus(submissionId, SubmissionStatus.Rejected, review);
 		}
 

@@ -1,6 +1,5 @@
 package com.cico.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class ChapterServiceImpl implements IChapterService {
 	@Autowired
 	FileServiceImpl fileServiceImpl;
 
-	@Override
+	 @Override
 	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {
 		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName, subjectId, false);
 		if (ch != null)
@@ -86,12 +85,13 @@ public class ChapterServiceImpl implements IChapterService {
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
 		Chapter ch = chapterRepo.findByChapterNameAndSubjectIdAndIsDeleted(chapterName.trim(), subjectId, false);
-
+		System.err.println(chapter);
 		if (ch != null)
 			throw new ResourceAlreadyExistException("Chapter already present with name..");
 
 		chapter.setChapterName(chapterName.trim());
 		chapterRepo.save(chapter);
+		
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

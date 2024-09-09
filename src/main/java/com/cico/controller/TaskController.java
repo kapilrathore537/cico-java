@@ -3,7 +3,6 @@ package com.cico.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.model.Task;
-import com.cico.payload.ApiResponse;
 import com.cico.payload.TaskRequest;
 import com.cico.service.ITaskService;
 import com.cico.util.SubmissionStatus;

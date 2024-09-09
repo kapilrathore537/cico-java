@@ -167,6 +167,7 @@ public class TaskServiceImpl implements ITaskService {
 			String taskDescription) {
 		TaskSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
 		Optional<Task> task = taskRepo.findByTaskIdAndIsDeletedFalse(taskId);
+		System.err.println(task);
 		if (Objects.isNull(obj)) {
 			TaskSubmission submittion = new TaskSubmission();
 			submittion.setStudent(studentRepository.findByStudentId(studentId));
@@ -290,14 +291,14 @@ public class TaskServiceImpl implements ITaskService {
 			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Rejected, review);
 		}
 
-		response.setFullName(updateSubmitTaskStatus.getStudent().getFullName());
-		response.setId(updateSubmitTaskStatus.getId());
-		response.setProfilePic(updateSubmitTaskStatus.getStudent().getProfilePic());
-		response.setReview(updateSubmitTaskStatus.getReview());
-		response.setStatus(updateSubmitTaskStatus.getStatus().toString());
-		response.setSubmissionDate(updateSubmitTaskStatus.getSubmissionDate());
-		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
-		response.setSubmittionFileName(updateSubmitTaskStatus.getSubmittionFileName());
+		response.setFullName(res.get().getStudent().getFullName());
+		response.setId(res.get().getId());
+		response.setProfilePic(res.get().getStudent().getProfilePic());
+		response.setReview(res.get().getReview());
+		response.setStatus(res.get().getStatus().toString());
+		response.setSubmissionDate(res.get().getSubmissionDate());
+		response.setSubmittionFileName(res.get().getSubmittionFileName());
+		response.setSubmittionFileName(res.get().getSubmittionFileName());
 
 		if (taskName.isPresent()) {
 			// fetching all the fcmId

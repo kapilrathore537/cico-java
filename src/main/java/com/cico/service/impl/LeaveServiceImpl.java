@@ -87,7 +87,6 @@ public class LeaveServiceImpl implements ILeaveService {
 		}
 
 		if (validateToken) {
-			System.out.println(validateToken);
 			if (leaveTypeId != null && leaveStartDate != null && leaveReason != null
 					&& (leaveDayType.equals("Full Day") || leaveDayType.equals("Half Day"))) {
 				Leaves leavesData = new Leaves(studentId, leaveTypeId, leaveReason, leaveDayType);
